@@ -65,7 +65,7 @@ class Huoban{
    }
    public static function formatHeader($options){
       $headers = $options['headers']??[];
-      $headers['content-type'] = $headers['content-type']?:'application/json';
+      $headers['content-type'] = $headers['content-type']??'application/json';
 
       if (self::$model ==  'alias') {
          $headers['X-Huoban-Return-Alias-Space-Id'] = self::$paramsForModel['spaceId'];
@@ -104,6 +104,7 @@ class Huoban{
    }
    public static function requestJsonPromise($requests)
    {
+
    }
    public static function requestJsonPool($requests,&$success_data,&$error_data,$concurrency = 5){
 

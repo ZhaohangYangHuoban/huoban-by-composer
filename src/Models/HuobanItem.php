@@ -44,7 +44,7 @@ class HuobanItem {
 
         $url = "/item/table/{$table}/find";
         $body = $body ?:[];
-        $body['limit'] = $body['limit']?:500;
+        $body['limit'] = $body['limit']??500;
 
         $requests = [];
         for ($i = 0; $i < ceil($fir_response['filtered']/$body['limit']); $i++) {
