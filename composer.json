@@ -1,5 +1,5 @@
 {
-    "name": "zhaohangyang/timimg-sync",
+    "name": "zhaohangyang/huoban_guzzlehttp",
     "require": {
         "guzzlehttp/guzzle": "6.*"
     },
