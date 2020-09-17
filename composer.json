@@ -1,7 +1,7 @@
 {
     "name": "zhaohangyang/huoban_guzzlehttp",
     "require": {
-        "guzzlehttp/guzzle": "6.*"
+        "guzzlehttp/guzzle": "6"
     },
     "repositories": {
         "packagist": {
