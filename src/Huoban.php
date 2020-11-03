@@ -3,9 +3,6 @@
 namespace Huoban;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Middleware;
-use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\Promise;
 use GuzzleHttp\Pool;
 
 use Huoban\Models\HuobanTicket;
@@ -18,22 +15,36 @@ class Huoban
    public static $applicationId;
    public static $applicationSecret;
 
+   public static $initParams;
+   public static $tmpParams;
+
    public static $ticket;
    public static $expired = 1209600;
 
    public static $model = "normal";
    public static $paramsForModel;
 
-   public  static function init($app_type = 'table', $application_id = null, $application_secret = null)
+   /**
+    * 初始化
+    *
+    * @param [type] $params
+    * @return void
+    */
+   public static function init($params)
    {
-      defined('HBVERSION') or define('HBVERSION', "/v2");
-      self::$appType = $app_type;
-      self::$applicationId = $application_id;
-      self::$applicationSecret = $application_secret;
+      self::$initParams = $params;
+
+      self::$appType = $params['app_type'] ?? 'table';
+      self::$applicationId = $params['application_id'] ?? null;
+      self::$applicationSecret = $params['application_secret'] ?? null;
+
       self::setClient();
       self::setTicket();
-   }
 
+      if (isset($params['alias_model']) && isset($params['space_id'])) {
+         self::aliasModel($params['space_id']);
+      }
+   }
    private static function setClient()
    {
       self::$client =  new Client([
@@ -43,23 +54,14 @@ class Huoban
    }
    private static function setTicket()
    {
-      if (!isset(self::$ticket)) {
-         if (self::$appType == 'table') {
-            self::$ticket = HuobanTicket::getForTable();
-         } else {
-            $request = HuobanTicket::getForEnterprise(self::$applicationId, self::$applicationSecret, self::$expired);
-            $response = self::requestJsonSync($request);
-            self::$ticket = $response['ticket'];
-         }
-      }
-   }
+      $ticket = HuobanTicket::getTicket(self::$appType, self::$applicationId, self::$applicationSecret);
 
+      self::$client->config['headers']['X-Huoban-Ticket'] = $ticket;
+   }
    public static function aliasModel($space_id)
    {
-      self::$model = 'alias';
-      self::$paramsForModel['spaceId'] = $space_id;
+      self::$client->config['headers']['X-Huoban-Return-Alias-Space-Id'] = $space_id;
    }
-
    public static function format($url, $body, $options)
    {
       $url = self::formatUrl($url, $options);
@@ -68,15 +70,15 @@ class Huoban
 
       return ['url' => $url, 'headers' => $headers, 'body' => $body];
    }
+   public static function formatUrl($url, $options)
+   {
+      $version = isset($options['version']) ? '/' . $options['version'] : (isset($options['passVersion']) ? '' : '/v2');
+      return "$version$url";
+   }
    public static function formatHeader($options)
    {
       $headers = $options['headers'] ?? [];
       $headers['content-type'] = $headers['content-type'] ?? 'application/json';
-
-      if (self::$model ==  'alias') {
-         $headers['X-Huoban-Return-Alias-Space-Id'] = self::$paramsForModel['spaceId'];
-      }
-      isset(self::$ticket) && $headers['X-Huoban-Ticket'] = self::$ticket;
 
       return $headers;
    }
@@ -91,28 +93,15 @@ class Huoban
       }
       return $body;
    }
-   public static function formatUrl($url, $options)
-   {
-      $version = isset($options['version']) ? '/' . $options['version'] : (isset($options['passVersion']) ? '' : '/v2');
-      return "$version$url";
-   }
-
-   private static function getDefaltOptions()
-   {
-      $options = [
-         'timeout' => 20,
-      ];
-      return $options;
-   }
-
    public static function requestJsonSync($request)
    {
-      $defalt_options = self::getDefaltOptions();
-      $response = self::$client->send($request, $defalt_options);
+      $response = self::$client->send($request);
       return  json_decode($response->getBody(), true);
    }
-   public static function requestJsonPromise($requests)
+   public static function requestAsync($request)
    {
+      $response = self::$client->send($request);
+      return  json_decode($response->getBody(), true);
    }
    public static function requestJsonPool($requests, $concurrency = 5)
    {
@@ -140,10 +129,24 @@ class Huoban
 
       return ['success_data' => $success_data, 'error_data' => $error_data];
    }
-   public static function requestAsync($request)
+   /**
+    * 临时切换权限
+    *
+    * @param [type] $tmp_params
+    * @return void
+    */
+   public static function switchTmpAuth($tmp_params)
    {
-      $defalt_options = self::getDefaltOptions();
-      $response = self::$client->send($request, $defalt_options);
-      return  json_decode($response->getBody(), true);
+      self::init($tmp_params);
+   }
+   /**
+    * 临时原有权限
+    *
+    * @param [type] $tmp_params
+    * @return void
+    */
+   public static function switchFormerAuth()
+   {
+      self::init(self::$initParams);
    }
 }
