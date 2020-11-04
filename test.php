@@ -21,6 +21,18 @@ $huoban = Huoban::init([
 ]);
 
 $huoban_data = HuobanItem::find("T::ceshi1");
+
+
+$huoban = Huoban::switchTmpAuth([
+    'app_type' => 'enterprise',
+    'application_id' => '1000307',
+    'application_secret' => 'GkCtOwFXsr1Sqsne6TNi0gMmwHZxKqTn9AzLyuEw',
+    'alias_model' => true,
+    'space_id' => '4000000002765282',
+]);
+
+
+$huoban_data = HuobanItem::find("T::app_test");
 print_r($huoban_data);
 
 // // $huoban->aliasModel($space_id);

@@ -21,9 +21,6 @@ class Huoban
    public static $ticket;
    public static $expired = 1209600;
 
-   public static $model = "normal";
-   public static $paramsForModel;
-
    /**
     * 初始化
     *
@@ -39,8 +36,10 @@ class Huoban
       self::$applicationSecret = $params['application_secret'] ?? null;
 
       self::setClient();
-      self::setTicket();
-
+      //如果ticket存在并且不为空 直接启用传入的ticket;
+      $ticket = (isset($params['ticket']) && !empty($params['ticket'])) ?  $params['ticket'] : HuobanTicket::getTicket(self::$appType, self::$applicationId, self::$applicationSecret);
+      self::setTicket($ticket);
+      //是否开启别名模式
       if (isset($params['alias_model']) && isset($params['space_id'])) {
          self::aliasModel($params['space_id']);
       }
@@ -52,10 +51,8 @@ class Huoban
          'timeout'  => 5.0,
       ]);
    }
-   private static function setTicket()
+   private static function setTicket($ticket)
    {
-      $ticket = HuobanTicket::getTicket(self::$appType, self::$applicationId, self::$applicationSecret);
-
       self::$client->config['headers']['X-Huoban-Ticket'] = $ticket;
    }
    public static function aliasModel($space_id)
