@@ -4,6 +4,7 @@ namespace Huoban;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Pool;
+use GuzzleHttp\Exception\ServerException;
 
 use Huoban\Models\HuobanTicket;
 
@@ -92,12 +93,20 @@ class Huoban
    }
    public static function requestJsonSync($request)
    {
-      $response = self::$client->send($request);
+      try {
+         $response = self::$client->send($request);
+      } catch (ServerException $e) {
+         $response = $e->getResponse();
+      }
       return  json_decode($response->getBody(), true);
    }
    public static function requestAsync($request)
    {
-      $response = self::$client->send($request);
+      try {
+         $response = self::$client->send($request);
+      } catch (ServerException $e) {
+         $response = $e->getResponse();
+      }
       return  json_decode($response->getBody(), true);
    }
    public static function requestJsonPool($requests, $concurrency = 5)
