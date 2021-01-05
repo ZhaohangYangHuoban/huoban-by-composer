@@ -12,29 +12,27 @@ class Huoban
 {
     public static $client;
 
-    public static $params;
-    public static $tmpParams;
+    public static $config;
 
     public static $ticket;
     public static $expired = 1209600;
-
     /**
      * 初始化
      *
-     * @param [type] $params
+     * @param [type] $config
      * @return void
      */
-    public static function init($params)
+    public static function init($config)
     {
-        self::$params = $params;
+        self::$config = $config;
 
         self::setClient();
         //如果ticket存在并且不为空 直接启用传入的ticket;
-        self::$ticket = (isset($params['ticket']) && !empty($params['ticket'])) ?  $params['ticket'] : HuobanTicket::getTicket($params);
+        self::$ticket = (isset($config['ticket']) && !empty($config['ticket'])) ?  $config['ticket'] : HuobanTicket::getTicket($config);
         self::setTicket();
         //是否开启别名模式
-        if (isset($params['alias_model']) && isset($params['space_id'])) {
-            self::aliasModel($params['space_id']);
+        if (isset($config['alias_model']) && isset($config['space_id'])) {
+            self::aliasModel($config['space_id']);
         }
     }
     private static function setClient()
@@ -42,6 +40,7 @@ class Huoban
         self::$client =  new Client([
             'base_uri' =>  constant("TEST") ? 'https://api-dev.huoban.com' : 'https://api.huoban.com',
             'timeout'  => 5.0,
+            'http_errors' => false
         ]);
     }
     private static function setTicket()
@@ -138,21 +137,21 @@ class Huoban
     /**
      * 临时切换权限
      *
-     * @param [type] $tmp_params
+     * @param [type] $tmp_config
      * @return void
      */
-    public static function switchTmpAuth($tmp_params)
+    public static function switchTmpAuth($tmp_config)
     {
-        self::init($tmp_params);
+        self::init($tmp_config);
     }
     /**
      * 临时原有权限
      *
-     * @param [type] $tmp_params
+     * @param [type] $tmp_config
      * @return void
      */
     public static function switchFormerAuth()
     {
-        self::init(self::$params);
+        self::init(self::$config);
     }
 }
