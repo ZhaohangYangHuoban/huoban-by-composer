@@ -4,18 +4,19 @@ namespace Huoban;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Pool;
+use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Exception\ServerException;
 
 use Huoban\Models\HuobanTicket;
 
 class Huoban
 {
-    public static $client;
-
+    public static $apiClient, $uploadClient;
     public static $config;
+    // public static $ticket;
+    // public static $ticketExpired = 1209600;
+    // public static $findMax = 500;
 
-    public static $ticket;
-    public static $expired = 1209600;
     /**
      * 初始化
      *
@@ -25,96 +26,56 @@ class Huoban
     public static function init($config)
     {
         self::$config = $config;
+    }
 
-        self::setClient();
-        //如果ticket存在并且不为空 直接启用传入的ticket;
-        self::$ticket = (isset($config['ticket']) && !empty($config['ticket'])) ?  $config['ticket'] : HuobanTicket::getTicket($config);
-        self::setTicket();
-        //是否开启别名模式
-        if (isset($config['alias_model']) && isset($config['space_id'])) {
-            self::aliasModel($config['space_id']);
+    public static function getApiUrl()
+    {
+        return defined('TEST') && constant('TEST') == true ? 'https://api-dev.huoban.com' : 'https://api.huoban.com';
+    }
+    private static function getApiClient()
+    {
+        if (!self::$apiClient) {
+            self::$apiClient = new Client([
+                'base_uri' =>  self::getApiUrl(),
+                'timeout'  => 5.0,
+                'verify' => false,
+                'http_errors' => false
+            ]);
         }
+        // 生成不进行效验,错误不打断返回详细信息的客户端
+        return self::$apiClient;
     }
-    private static function setClient()
+    public static function defaultHeader($headers = [])
     {
-        self::$client =  new Client([
-            'base_uri' =>  constant("TEST") ? 'https://api-dev.huoban.com' : 'https://api.huoban.com',
-            'timeout'  => 5.0,
-            'http_errors' => false
-        ]);
-    }
-    private static function setTicket()
-    {
-        self::$client->config['headers']['X-Huoban-Ticket'] = self::$ticket;
-    }
-    public static function aliasModel($space_id)
-    {
-        self::$client->config['headers']['X-Huoban-Return-Alias-Space-Id'] = $space_id;
-    }
-    public static function switchFile()
-    {
-        self::$client->config['base_uri'] = constant("TEST") ? 'https://upload.huoban.com' : 'https://upload.huoban.com';
-    }
-    public static function switchApi()
-    {
-        self::$client->config['base_uri'] = constant("TEST") ? 'https://api-dev.huoban.com' : 'https://api.huoban.com';
-    }
-    public static function format($url, $body = [], $options = [])
-    {
-        $url = self::formatUrl($url, $options);
-        $headers = self::formatHeader($options);
-        $body = self::formatBody($body, $headers);
-
-        return ['url' => $url, 'headers' => $headers, 'body' => $body];
-    }
-    public static function formatUrl($url, $options)
-    {
-        $version = isset($options['version']) ? '/' . $options['version'] : (isset($options['passVersion']) ? '' : '/v2');
-        return "$version$url";
-    }
-    public static function formatHeader($options)
-    {
-        $headers = $options['headers'] ?? [];
-        $headers['content-type'] = $headers['content-type'] ?? 'application/json';
-
-        return $headers;
-    }
-    public static function formatBody($body, $headers)
-    {
-        switch ($headers['content-type']) {
-            case 'application/json':
-                $body = json_encode($body);
-                break;
-            default:
-                break;
-        }
-        return $body;
+        $default_headers = [
+            'Content-Type' => 'application/json',
+            'X-Huoban-Ticket' => self::$config['ticket'] ?? HuobanTicket::getTicket(self::$config),
+            'X-Huoban-Return-Alias-Space-Id' => self::$config['space_id'] ?? '',
+        ];
+        return $headers +  $default_headers;
     }
     public static function requestJsonSync($request)
     {
         try {
-            $response = self::$client->send($request);
+            $response = self::getApiClient()->send($request);
         } catch (ServerException $e) {
             $response = $e->getResponse();
         }
         return  json_decode($response->getBody(), true);
     }
-    public static function requestAsync($request)
+    public static function getRequest($method, $url, $body = [], $options = [])
     {
-        try {
-            $response = self::$client->send($request);
-        } catch (ServerException $e) {
-            $response = $e->getResponse();
-        }
-        return  json_decode($response->getBody(), true);
+        $url = $options['version'] ?? '/v2' . $url;
+        $body = json_encode($body);
+        $headers = Huoban::defaultHeader();
+        return new Request($method, $url, $headers, $body);
     }
-    public static function requestJsonPool($requests, $concurrency = 5)
+    public static function requestJsonPool($requests, $concurrency = 100)
     {
 
         $success_data = [];
         $error_data = [];
-
-        $pool = new Pool(self::$client, $requests, [
+        $pool = new Pool(self::getApiClient(), $requests, [
             'concurrency' => $concurrency,
             'fulfilled' => function ($response, $index) use (&$success_data) {
                 $success_data[] = [
@@ -131,7 +92,6 @@ class Huoban
         ]);
         $promise = $pool->promise();
         $promise->wait();
-
         return ['success_data' => $success_data, 'error_data' => $error_data];
     }
     /**

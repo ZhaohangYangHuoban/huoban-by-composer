@@ -2,171 +2,110 @@
 
 namespace Huoban\Models;
 
-use GuzzleHttp\Psr7\Request;
 use Huoban\Huoban;
 
 class HuobanItem
 {
-    public static function find($table, $body = null, $options = [])
+    public static function find($table, $body = [], $options = [])
     {
-        $url = "/item/table/{$table}/find";
-
-        $format_data = Huoban::format($url, $body, $options);
-        $request = new Request('POST', $format_data['url'], $format_data['headers'], $format_data['body']);
-
+        $request = Huoban::getRequest('POST', "/item/table/{$table}/find", $body, $options);
         if (isset($options['res_type']) && $options['res_type'] == 'request') {
             return  $request;
         }
-
         $response = Huoban::requestJsonSync($request);
-
         if ($response['filtered'] >= 1) {
             $response['items'] = self::handleItems($response['items']);
         }
         return $response;
     }
-    public static function findFirst($table, $body = null, $options = [])
+    public static function findAll($table, $body = [], $options = [])
     {
-        $url = "/item/table/{$table}/find";
-
-        $body = $body ?: [];
-        $body['offset'] = 0;
-        $body['limit']  = 1;
-
-        $format_data = Huoban::format($url, $body, $options);
-        $request = new Request('POST', $format_data['url'], $format_data['headers'], $format_data['body']);
-
-        if (isset($options['res_type']) && $options['res_type'] == 'request') {
-            return  $request;
-        }
-
-        $response = Huoban::requestJsonSync($request);
-
-        if ($response['filtered'] >= 1) {
-            $response['items'] = self::handleItems($response['items']);
-        }
-        return $response;
-    }
-    public static function findAll($table, $body = null, $options = [])
-    {
-
-        $fir_response = self::findFirst($table, $body, $options);
-
-        $url = "/item/table/{$table}/find";
-        $body = $body ?: [];
-        $body['limit'] = $body['limit'] ?? 500;
-
         $requests = [];
+        $responses = [];
+        // 单次查询最高500条
+        $body['limit'] = 500;
+        $fir_response = self::find($table, $body, $options + ['res_type' => 'response']);
+        // 查询全部数据的所有请求
         for ($i = 0; $i < ceil($fir_response['filtered'] / $body['limit']); $i++) {
-
             $body['offset'] = $body['limit'] * $i;
-
-            $format_data = Huoban::format($url, $body, $options);
-            $requests[] = new Request('POST', $format_data['url'], $format_data['headers'], $format_data['body']);
+            $requests[] = Huoban::getRequest('POST', "/item/table/{$table}/find", $body, $options);
         }
-
+        // 如果获取的是请求
         if (isset($options['res_type']) && $options['res_type'] == 'request') {
             return  $requests;
         }
-
-        $responses = Huoban::requestJsonPool($requests);
-        extract($responses);
-
-        $data = ['total' => '', 'filtered' => '', 'items' => []];
-        $format_items = [];
-
-        foreach ($success_data as $success_response) {
-            foreach ($success_response['response']['items'] as $item) {
-                // $item_id = (string)$item['item_id'];
-                $format_items[] = self::returnDiy($item);
-            }
-            $data['total'] = $success_response['response']['total'];
-            $data['filtered'] = $success_response['response']['filtered'];
+        // 如果查询结果不足500，直接返回结果集
+        if ($fir_response['filtered'] < $body['limit']) {
+            return $fir_response;
         }
-        $data['items'] = $format_items;
-        return $data;
+        // 如果查询结果超过500，返回结果集并格式化批处理结果
+        $responses = Huoban::requestJsonPool($requests);
+        $format_items = [];
+        foreach ($responses['success_data'] as $success_response) {
+            $format_items =  $format_items + self::handleItems($success_response['response']['items']);
+        }
+        return [
+            'total' => $fir_response['total'],
+            'filtered' => $fir_response['filtered'],
+            'items' => $format_items,
+        ];
     }
-    public static function update($item_id, $body = null, $options = [])
+    public static function update($item_id, $body = [], $options = [])
     {
-        $url = "/item/{$item_id}";
-
-        $format_data = Huoban::format($url, $body, $options);
-        $request = new Request('put', $format_data['url'], $format_data['headers'], $format_data['body']);
-
-        return isset($options['res_type']) && $options['res_type'] == 'request' ? $request : self::returnDiy(Huoban::requestJsonSync($request));
-    }
-    public static function updates($table, $body = null, $options = [])
-    {
-        $url = "/item/table/{$table}/update";
-
-        $format_data = Huoban::format($url, $body, $options);
-        $request = new Request('post', $format_data['url'], $format_data['headers'], $format_data['body']);
-
-        return isset($options['res_type']) && $options['res_type'] == 'request' ? $request : Huoban::requestJsonSync($request);
-    }
-    public static function create($table, $body = null, $options = [])
-    {
-        $url = "/item/table/{$table}";
-
-        $format_data = Huoban::format($url, $body, $options);
-        $request = new Request('post', $format_data['url'], $format_data['headers'], $format_data['body']);
-
-        return isset($options['res_type']) && $options['res_type'] == 'request' ? $request : self::returnDiy(Huoban::requestJsonSync($request));
-    }
-    public static function creates($table, $body = null, $options = [])
-    {
-        $url = "/item/table/{$table}/create";
-
-        $format_data = Huoban::format($url, $body, $options);
-        $request =  new Request('post', $format_data['url'], $format_data['headers'], $format_data['body']);
-
-        return isset($options['res_type']) && $options['res_type'] == 'request' ? $request : Huoban::requestJsonSync($request);
-    }
-    public static function del($item_id, $body = null, $options = [])
-    {
-        $url = "/item/{$item_id}";
-
-        $format_data = Huoban::format($url, $body, $options);
-        $request =  new Request('delete', $format_data['url'], $format_data['headers'], $format_data['body']);
-
-        return isset($options['res_type']) && $options['res_type'] == 'request' ? $request : Huoban::requestJsonSync($request);
-    }
-    public static function dels($table, $body = null, $options = [])
-    {
-        $url = "/item/table/{$table}/delete";
-
-        $format_data = Huoban::format($url, $body, $options);
-        $request = new Request('post', $format_data['url'], $format_data['headers'], $format_data['body']);
-
-        return isset($options['res_type']) && $options['res_type'] == 'request' ? $request : Huoban::requestJsonSync($request);
-    }
-    public static function get($item_id, $body = null, $options = [])
-    {
-        $url = "/item/{$item_id}";
-
-        $format_data = Huoban::format($url, $body, $options);
-        $request = new Request('get', $format_data['url'], $format_data['headers'], $format_data['body']);
-
-        return isset($options['res_type']) && $options['res_type'] == 'request' ? $request : Huoban::requestJsonSync($request);
-    }
-    // 暂未启用
-    public static function relation($field_id, $body = null, $options = [])
-    {
-        $url = "/item/field/{$field_id}/search";
-
-        $format_data = Huoban::format($url, $body, $options);
-        $request = new Request('post', $format_data['url'], $format_data['headers'], $format_data['body']);
-
+        $request = Huoban::getRequest('PUT', "/item/{$item_id}", $body, $options);
         if (isset($options['res_type']) && $options['res_type'] == 'request') {
             return  $request;
         }
-
         $response = Huoban::requestJsonSync($request);
-
-        if ($response['filtered'] >= 1) {
-            $response['items'] = self::handleItems($response['items']);
+        return self::returnDiy($response);
+    }
+    public static function updates($table, $body = [], $options = [])
+    {
+        $request = Huoban::getRequest('POST', "/item/table/{$table}/update", $body, $options);
+        if (isset($options['res_type']) && $options['res_type'] == 'request') {
+            return  $request;
         }
-        return self::handleItems($response);
+        return Huoban::requestJsonSync($request);
+    }
+    public static function create($table, $body = null, $options = [])
+    {
+        $request = Huoban::getRequest('POST', "/item/table/{$table}", $body, $options);
+        if (isset($options['res_type']) && $options['res_type'] == 'request') {
+            return  $request;
+        }
+        return self::returnDiy(Huoban::requestJsonSync($request));
+    }
+    public static function creates($table, $body = null, $options = [])
+    {
+        $request = Huoban::getRequest('POST', "/item/table/{$table}/create", $body, $options);
+        if (isset($options['res_type']) && $options['res_type'] == 'request') {
+            return  $request;
+        }
+        return Huoban::requestJsonSync($request);
+    }
+    public static function del($item_id, $body = null, $options = [])
+    {
+        $request = Huoban::getRequest('POST', "/item/{$item_id}", $body, $options);
+        if (isset($options['res_type']) && $options['res_type'] == 'request') {
+            return  $request;
+        }
+        return Huoban::requestJsonSync($request);
+    }
+    public static function dels($table, $body = null, $options = [])
+    {
+        $request = Huoban::getRequest('POST', "/item/table/{$table}/delete", $body, $options);
+        if (isset($options['res_type']) && $options['res_type'] == 'request') {
+            return  $request;
+        }
+        return Huoban::requestJsonSync($request);
+    }
+    public static function get($item_id, $body = null, $options = [])
+    {
+        $request = Huoban::getRequest('POST', "/item/{$item_id}", $body, $options);
+        if (isset($options['res_type']) && $options['res_type'] == 'request') {
+            return  $request;
+        }
+        return Huoban::requestJsonSync($request);
     }
     public static function handleItems($items)
     {
