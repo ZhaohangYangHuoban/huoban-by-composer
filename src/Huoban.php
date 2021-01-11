@@ -13,31 +13,16 @@ class Huoban
 {
     public static $apiClient, $uploadClient;
     public static $config;
-    // public static $ticket;
-    // public static $ticketExpired = 1209600;
-    // public static $findMax = 500;
-
-    /**
-     * 初始化
-     *
-     * @param [type] $config
-     * @return void
-     */
     public static function init($config)
     {
         self::$config = $config;
     }
-
-    public static function getApiUrl()
-    {
-        return defined('TEST') && constant('TEST') == true ? 'https://api-dev.huoban.com' : 'https://api.huoban.com';
-    }
-    private static function getApiClient()
+    public static function getApiClient()
     {
         if (!self::$apiClient) {
             self::$apiClient = new Client([
-                'base_uri' =>  self::getApiUrl(),
-                'timeout'  => 5.0,
+                'base_uri' => defined('TEST') && constant('TEST') == true ? 'https://api-dev.huoban.com' : 'https://api.huoban.com',
+                'timeout'  => 20.0,
                 'verify' => false,
                 'http_errors' => false
             ]);
@@ -45,14 +30,35 @@ class Huoban
         // 生成不进行效验,错误不打断返回详细信息的客户端
         return self::$apiClient;
     }
+    public static function getUploadClient()
+    {
+        if (!self::$uploadClient) {
+            self::$uploadClient = new Client([
+                'base_uri' => defined('TEST') && constant('TEST') == true ? 'https://upload.huoban.com' : 'https://upload.huoban.com',
+                'timeout'  => 20.0,
+                'verify' => false,
+                'http_errors' => false,
+                'headers' => self::defaultHeader(),
+            ]);
+        }
+        return self::$uploadClient;
+    }
     public static function defaultHeader($headers = [])
     {
+        $ticket = self::$config['ticket'] ?? HuobanTicket::getTicket(self::$config);
         $default_headers = [
             'Content-Type' => 'application/json',
-            'X-Huoban-Ticket' => self::$config['ticket'] ?? HuobanTicket::getTicket(self::$config),
+            'X-Huoban-Ticket' => $ticket,
             'X-Huoban-Return-Alias-Space-Id' => self::$config['space_id'] ?? '',
         ];
         return $headers +  $default_headers;
+    }
+    public static function getRequest($method, $url, $body = [], $options = [])
+    {
+        $url = $options['version'] ?? '/v2' . $url;
+        $body = json_encode($body);
+        $headers = Huoban::defaultHeader();
+        return new Request($method, $url, $headers, $body);
     }
     public static function requestJsonSync($request)
     {
@@ -62,13 +68,6 @@ class Huoban
             $response = $e->getResponse();
         }
         return  json_decode($response->getBody(), true);
-    }
-    public static function getRequest($method, $url, $body = [], $options = [])
-    {
-        $url = $options['version'] ?? '/v2' . $url;
-        $body = json_encode($body);
-        $headers = Huoban::defaultHeader();
-        return new Request($method, $url, $headers, $body);
     }
     public static function requestJsonPool($requests, $concurrency = 100)
     {
@@ -94,24 +93,12 @@ class Huoban
         $promise->wait();
         return ['success_data' => $success_data, 'error_data' => $error_data];
     }
-    /**
-     * 临时切换权限
-     *
-     * @param [type] $tmp_config
-     * @return void
-     */
-    public static function switchTmpAuth($tmp_config)
+    public static function execute($method, $url, $body = [], $options = [])
     {
-        self::init($tmp_config);
-    }
-    /**
-     * 临时原有权限
-     *
-     * @param [type] $tmp_config
-     * @return void
-     */
-    public static function switchFormerAuth()
-    {
-        self::init(self::$config);
+        $request = Huoban::getRequest($method, $url, $body, $options);
+        if (isset($options['res_type']) && $options['res_type'] == 'request') {
+            return  $request;
+        }
+        return Huoban::requestJsonSync($request);
     }
 }

@@ -9,12 +9,11 @@ class HuobanTicket
 {
     public static function getForEnterprise($application_id, $application_secret, $options)
     {
-        $request = Huoban::getRequest('POST',  '/v2/ticket', json_encode([
+        $request = new Request('POST', '/v2/ticket', [], json_encode([
             'application_id' => $application_id,
             'application_secret' => $application_secret,
             'expired' => $options['expired'] ?? 1209600,
-        ]), $options);
-
+        ]));
         if (isset($options['res_type']) && $options['res_type'] == 'request') {
             return  $request;
         }
@@ -24,12 +23,11 @@ class HuobanTicket
 
     public static function getForShare($share_id, $secret, $options)
     {
-        $request = Huoban::getRequest('POST',  '/v2/ticket', json_encode([
+        $request = new Request('POST', '/v2/ticket', [], json_encode([
             'share_id' => $share_id,
             'secret' => $secret,
             'expired' => $options['expired'] ?? 1209600,
-        ]), $options);
-
+        ]));
         if (isset($options['res_type'])) {
             return  $request;
         }

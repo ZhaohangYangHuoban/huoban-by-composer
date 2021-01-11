@@ -8,11 +8,7 @@ class HuobanItem
 {
     public static function find($table, $body = [], $options = [])
     {
-        $request = Huoban::getRequest('POST', "/item/table/{$table}/find", $body, $options);
-        if (isset($options['res_type']) && $options['res_type'] == 'request') {
-            return  $request;
-        }
-        $response = Huoban::requestJsonSync($request);
+        $response = Huoban::execute('POST', "/item/table/{$table}/find", $body, $options);
         if ($response['filtered'] >= 1) {
             $response['items'] = self::handleItems($response['items']);
         }
@@ -28,7 +24,7 @@ class HuobanItem
         // 查询全部数据的所有请求
         for ($i = 0; $i < ceil($fir_response['filtered'] / $body['limit']); $i++) {
             $body['offset'] = $body['limit'] * $i;
-            $requests[] = Huoban::getRequest('POST', "/item/table/{$table}/find", $body, $options);
+            $requests[] = self::find($table, $body, $options + ['res_type' => 'request']);
         }
         // 如果获取的是请求
         if (isset($options['res_type']) && $options['res_type'] == 'request') {
@@ -52,60 +48,33 @@ class HuobanItem
     }
     public static function update($item_id, $body = [], $options = [])
     {
-        $request = Huoban::getRequest('PUT', "/item/{$item_id}", $body, $options);
-        if (isset($options['res_type']) && $options['res_type'] == 'request') {
-            return  $request;
-        }
-        $response = Huoban::requestJsonSync($request);
+        $response = Huoban::execute('PUT', "/item/{$item_id}", $body, $options);
         return self::returnDiy($response);
     }
     public static function updates($table, $body = [], $options = [])
     {
-        $request = Huoban::getRequest('POST', "/item/table/{$table}/update", $body, $options);
-        if (isset($options['res_type']) && $options['res_type'] == 'request') {
-            return  $request;
-        }
-        return Huoban::requestJsonSync($request);
+        return Huoban::execute('POST', "/item/table/{$table}/update", $body, $options);
     }
     public static function create($table, $body = null, $options = [])
     {
-        $request = Huoban::getRequest('POST', "/item/table/{$table}", $body, $options);
-        if (isset($options['res_type']) && $options['res_type'] == 'request') {
-            return  $request;
-        }
-        return self::returnDiy(Huoban::requestJsonSync($request));
+        $response = Huoban::execute('POST', "/item/table/{$table}", $body, $options);
+        return self::returnDiy($response);
     }
     public static function creates($table, $body = null, $options = [])
     {
-        $request = Huoban::getRequest('POST', "/item/table/{$table}/create", $body, $options);
-        if (isset($options['res_type']) && $options['res_type'] == 'request') {
-            return  $request;
-        }
-        return Huoban::requestJsonSync($request);
+        return Huoban::execute('POST', "/item/table/{$table}/create", $body, $options);
     }
     public static function del($item_id, $body = null, $options = [])
     {
-        $request = Huoban::getRequest('POST', "/item/{$item_id}", $body, $options);
-        if (isset($options['res_type']) && $options['res_type'] == 'request') {
-            return  $request;
-        }
-        return Huoban::requestJsonSync($request);
+        return Huoban::execute('POST', "/item/{$item_id}", $body, $options);
     }
     public static function dels($table, $body = null, $options = [])
     {
-        $request = Huoban::getRequest('POST', "/item/table/{$table}/delete", $body, $options);
-        if (isset($options['res_type']) && $options['res_type'] == 'request') {
-            return  $request;
-        }
-        return Huoban::requestJsonSync($request);
+        return Huoban::execute('POST', "/item/table/{$table}/delete", $body, $options);
     }
     public static function get($item_id, $body = null, $options = [])
     {
-        $request = Huoban::getRequest('POST', "/item/{$item_id}", $body, $options);
-        if (isset($options['res_type']) && $options['res_type'] == 'request') {
-            return  $request;
-        }
-        return Huoban::requestJsonSync($request);
+        return Huoban::execute('POST', "/item/{$item_id}", $body, $options);
     }
     public static function handleItems($items)
     {

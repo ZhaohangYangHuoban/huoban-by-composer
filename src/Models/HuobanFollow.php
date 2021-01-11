@@ -10,29 +10,14 @@ class HuobanFollow
 
     public static function create($item_id, $body = [], $options = [])
     {
-        $url = "/follow/item/{$item_id}";
-
-        $format_data = Huoban::format($url, $body, $options);
-        $request = new Request('POST', $format_data['url'], $format_data['headers'], $format_data['body']);
-
-        return isset($options['res_type']) && $options['res_type'] == 'request' ? $request : Huoban::requestJsonSync($request);
+        return Huoban::execute('POST', "/follow/item/{$item_id}", $body, $options);
     }
     public static function delete($ref_id, $body = [], $options = [])
     {
-        $url = "/follow/item/{$ref_id}";
-
-        $format_data = Huoban::format($url, $body, $options);
-        $request = new Request('delete', $format_data['url'], $format_data['headers'], $format_data['body']);
-
-        return isset($options['res_type']) && $options['res_type'] == 'request' ? $request : Huoban::requestJsonSync($request);
+        return Huoban::execute('POST', "/follow/item/{$ref_id}", $body, $options);
     }
     public static function getAll($item_id, $body = [], $options = [])
     {
-        $url = "/follow/item/{$item_id}/find";
-
-        $format_data = Huoban::format($url, $body, $options);
-        $request = new Request('POST', $format_data['url'], $format_data['headers'], $format_data['body']);
-
-        return isset($options['res_type']) && $options['res_type'] == 'request' ? $request : Huoban::requestJsonSync($request);
+        return Huoban::execute('POST', "/follow/item/{$item_id}/find", $body, $options);
     }
 }
