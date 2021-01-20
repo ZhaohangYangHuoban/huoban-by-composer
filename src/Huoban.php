@@ -8,6 +8,7 @@ use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Exception\ServerException;
 
 use Huoban\Models\HuobanTicket;
+use Huoban\Models\HuobanToken;
 
 class Huoban
 {
@@ -21,7 +22,7 @@ class Huoban
     {
         if (!self::$apiClient) {
             self::$apiClient = new Client([
-                'base_uri' => defined('TEST') && constant('TEST') == true ? 'https://api-dev.huoban.com' : 'https://api.huoban.com',
+                'base_uri' => self::$config['api_url'],
                 'timeout'  => 20.0,
                 'verify' => false,
                 'http_errors' => false
@@ -34,7 +35,7 @@ class Huoban
     {
         if (!self::$uploadClient) {
             self::$uploadClient = new Client([
-                'base_uri' => defined('TEST') && constant('TEST') == true ? 'https://upload.huoban.com' : 'https://upload.huoban.com',
+                'base_uri' => self::$config['upload_url'],
                 'timeout'  => 20.0,
                 'verify' => false,
                 'http_errors' => false,
@@ -45,11 +46,14 @@ class Huoban
     }
     public static function defaultHeader($headers = [])
     {
-        $ticket = self::$config['ticket'] ?? HuobanTicket::getTicket(self::$config);
+        self::$config['ticket'] = self::$config['ticket'] ?? HuobanTicket::getTicket(self::$config);
+        self::$config['token'] = isset(self::$config['security_auth']) ? self::$config['token'] ?? HuobanToken::getToken(self::$config) : '';
+
         $default_headers = [
             'Content-Type' => 'application/json',
-            'X-Huoban-Ticket' => $ticket,
+            'X-Huoban-Ticket' => self::$config['ticket'],
             'X-Huoban-Return-Alias-Space-Id' => self::$config['space_id'] ?? '',
+            'X-Huoban-Security-Token' =>  self::$config['token'],
         ];
         return $headers +  $default_headers;
     }
