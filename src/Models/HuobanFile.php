@@ -3,7 +3,6 @@
 namespace Huoban\Models;
 
 use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\Client;
 use Huoban\Huoban;
 
 class HuobanFile
@@ -14,19 +13,22 @@ class HuobanFile
             'multipart' => [
                 [
                     'contents' => fopen($file_path . '/' . $file_name, 'r'),
-                    'name'      =>  'source',
+                    'name'     => 'source',
                 ],
                 [
-                    'name'      =>  'type',
-                    'contents'      => 'attachment',
+                    'name'     => 'type',
+                    'contents' => 'attachment',
                 ],
                 [
-                    'name'      =>  'name',
-                    'contents'      => $file_name,
-                ]
+                    'name'     => 'name',
+                    'contents' => $file_name,
+                ],
             ],
         ]);
-        if ($res->getStatusCode() != 200) exit("Something happened, could not retrieve data");
+        if ($res->getStatusCode() != 200) {
+            exit("Something happened, could not retrieve data");
+        }
+
         $response = json_decode($res->getBody(), true);
         return $response;
     }

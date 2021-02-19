@@ -2,26 +2,25 @@
 
 namespace Huoban\Models;
 
-use GuzzleHttp\Psr7\Request;
 use Huoban\Huoban;
 
 class HuobanCompany
 {
     public static function getMemberAll($company_id = null, $body = [], $options = [])
     {
-        $requests = [];
+        $requests  = [];
         $responses = [];
         // 单次查询最高500条
         $body['limit'] = 500;
-        $fir_response = self::getMember($company_id, $body, $options + ['res_type' => 'response']);
+        $fir_response  = self::getMember($company_id, $body, $options + ['res_type' => 'response']);
         // 查询全部数据的所有请求
         for ($i = 0; $i < ceil($fir_response['filtered'] / $body['limit']); $i++) {
             $body['offset'] = $body['limit'] * $i;
-            $requests[] = self::getMember($company_id, $body, $options + ['res_type' => 'request']);
+            $requests[]     = self::getMember($company_id, $body, $options + ['res_type' => 'request']);
         }
         // 如果获取的是请求
         if (isset($options['res_type']) && $options['res_type'] == 'request') {
-            return  $requests;
+            return $requests;
         }
         // 如果查询结果不足500，直接返回结果集
         if ($fir_response['filtered'] < $body['limit']) {
@@ -35,10 +34,10 @@ class HuobanCompany
             }
         }
         return [
-            'total' => $fir_response['total'],
-            'joined_total' => $fir_response['joined_total'],
+            'total'          => $fir_response['total'],
+            'joined_total'   => $fir_response['joined_total'],
             'unactive_total' => $fir_response['unactive_total'],
-            'members' => $format_items,
+            'members'        => $format_items,
         ];
     }
     public static function getMember($company_id, $body = [], $options = [])

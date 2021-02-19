@@ -2,7 +2,6 @@
 
 namespace Huoban\Models;
 
-use GuzzleHttp\Psr7\Request;
 use Huoban\Huoban;
 
 class HuobanShare
@@ -20,7 +19,7 @@ class HuobanShare
     public static function itemUpdate($item_share = [], $options = [])
     {
         $item_share_id = $item_share['item_share_id'];
-        $body = $item_share;
+        $body          = $item_share;
         return Huoban::execute('PUT', "/item_share/{$item_share_id}", $body, $options);
     }
 

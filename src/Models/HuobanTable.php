@@ -2,7 +2,6 @@
 
 namespace Huoban\Models;
 
-use GuzzleHttp\Psr7\Request;
 use Huoban\Huoban;
 
 class HuobanTable

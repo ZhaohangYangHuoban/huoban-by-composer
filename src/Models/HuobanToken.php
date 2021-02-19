@@ -13,10 +13,10 @@ class HuobanToken
             'X-Huoban-Ticket' => $config['ticket'],
         ], json_encode([
             'company_ids' => $config['company_ids'],
-            'password' => $config['password'],
+            'password'    => $config['password'],
         ]));
         if (isset($options['res_type']) && $options['res_type'] == 'request') {
-            return  $request;
+            return $request;
         }
         $response = Huoban::requestJsonSync($request);
         return $response[0]['token'];
