@@ -62,4 +62,11 @@ class HuobanTicket
         }
         return $ticket;
     }
+
+    public static function parse($body = [], $options = [])
+    {
+        $response = Huoban::execute('GET', "/ticket/parse", $body, $options);
+        return $response;
+
+    }
 }

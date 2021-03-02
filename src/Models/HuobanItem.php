@@ -16,7 +16,7 @@ class HuobanItem
         $responses = [];
         // 单次查询最高500条
         $body['limit'] = 500;
-        $fir_response  = self::find($table, $body, $options);
+        $fir_response  = self::find($table, $body, $options + ['res_type' => 'response']);
         // 查询全部数据的所有请求
         for ($i = 0; $i < ceil($fir_response['filtered'] / $body['limit']); $i++) {
             $body['offset'] = $body['limit'] * $i;
@@ -28,21 +28,25 @@ class HuobanItem
         }
         // 如果查询结果不足500，直接返回结果集
         if ($fir_response['filtered'] < $body['limit']) {
+            $fir_response['items'] = $fir_response['filtered'] >= 1 ? self::handleItems($fir_response['items']) : [];
             return $fir_response;
         }
         // 如果查询结果超过500，返回结果集并格式化批处理结果
         $responses    = Huoban::requestJsonPool($requests);
         $format_items = [];
         foreach ($responses['success_data'] as $success_response) {
-            foreach ($success_response['response']['items'] as $item) {
-                array_push($format_items, $item);
-            }
+            $format_items = $format_items + self::handleItems($success_response['response']['items']);
         }
-        return ['total' => $fir_response['total'], 'filtered' => $fir_response['filtered'], 'items' => $format_items];
+        return [
+            'total'    => $fir_response['total'],
+            'filtered' => $fir_response['filtered'],
+            'items'    => $format_items,
+        ];
     }
     public static function update($item_id, $body = [], $options = [])
     {
-        return Huoban::execute('PUT', "/item/{$item_id}", $body, $options);
+        $response = Huoban::execute('PUT', "/item/{$item_id}", $body, $options);
+        return self::returnDiy($response);
     }
     public static function updates($table, $body = [], $options = [])
     {
@@ -50,7 +54,8 @@ class HuobanItem
     }
     public static function create($table, $body = null, $options = [])
     {
-        return Huoban::execute('POST', "/item/table/{$table}", $body, $options);
+        $response = Huoban::execute('POST', "/item/table/{$table}", $body, $options);
+        return self::returnDiy($response);
     }
     public static function creates($table, $body = null, $options = [])
     {
@@ -82,6 +87,7 @@ class HuobanItem
         $format_item = [];
         foreach ($item['fields'] as $field) {
             $field_key = $field['alias'] ?: (string) $field['field_id'];
+            $field_key = str_replace('.', '-', $field_key);
             switch ($field['type']) {
                 case 'number':
                 case 'text':
