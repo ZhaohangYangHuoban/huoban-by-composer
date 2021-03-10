@@ -123,8 +123,8 @@ class HuobanItem
                     break;
                 case 'image':
                     $sources = [];
-                    foreach ($field['values']['link'] as $value) {
-                        $sources[] = $value['source'];
+                    foreach ($field['values'] as $value) {
+                        $sources[] = $value['link']['source'];
                     }
                     $format_item[$field_key]                 = implode(';', $sources);
                     $format_item[$field_key . '_linksource'] = $sources;
