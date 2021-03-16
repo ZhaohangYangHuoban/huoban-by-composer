@@ -14,7 +14,7 @@ class HuobanCompany
         $body['limit'] = 500;
         $fir_response  = self::getMember($company_id, $body, $options + ['res_type' => 'response']);
         // 查询全部数据的所有请求
-        for ($i = 0; $i < ceil($fir_response['filtered'] / $body['limit']); $i++) {
+        for ($i = 0; $i < ceil($fir_response['joined_total'] / $body['limit']); $i++) {
             $body['offset'] = $body['limit'] * $i;
             $requests[]     = self::getMember($company_id, $body, $options + ['res_type' => 'request']);
         }
@@ -23,7 +23,7 @@ class HuobanCompany
             return $requests;
         }
         // 如果查询结果不足500，直接返回结果集
-        if ($fir_response['filtered'] < $body['limit']) {
+        if ($fir_response['joined_total'] < $body['limit']) {
             return $fir_response;
         }
         // 如果查询结果超过500，返回结果集并格式化批处理结果
