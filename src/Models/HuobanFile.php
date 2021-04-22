@@ -2,34 +2,41 @@
 
 namespace Huoban\Models;
 
-use GuzzleHttp\Psr7\Request;
 use Huoban\Huoban;
 
 class HuobanFile
 {
-    public static function upload($file_name, $file_path, $type = 'attachment')
+    /**
+     * 上传文件
+     *
+     * @param array $body
+     * @param array $options
+     * @return void
+     */
+    public static function upload($body = [], $options = [])
     {
-        $res = Huoban::getUploadClient()->request('POST', '/v2/file', [
-            'multipart' => [
-                [
-                    'contents' => fopen($file_path . '/' . $file_name, 'r'),
-                    'name'     => 'source',
-                ],
-                [
-                    'name'     => 'type',
-                    'contents' => 'attachment',
-                ],
-                [
-                    'name'     => 'name',
-                    'contents' => $file_name,
-                ],
-            ],
-        ]);
-        if ($res->getStatusCode() != 200) {
-            exit("Something happened, could not retrieve data");
-        }
+        //  example
 
-        $response = json_decode($res->getBody(), true);
-        return $response;
+        //  $body = [
+        //      'multipart' => [
+        //          [
+        //              'contents' => fopen($file_path . '/' . $file_name, 'r'),
+        //              'name'     => 'source',
+        //          ],
+        //          [
+        //              'name'     => 'type',
+        //              'contents' => 'attachment',
+        //          ],
+        //          [
+        //              'name'     => 'name',
+        //              'contents' => $file_name,
+        //          ],
+        //      ],
+        //  ];
+
+        Huoban::setHttpClient('upload');
+        $response = Huoban::getHttpClient()->request('POST', "/file", $body, $options);
+        Huoban::setHttpClient('api');
+        return json_decode($response->getBody(), true);
     }
 }

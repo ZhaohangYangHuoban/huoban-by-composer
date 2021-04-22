@@ -7,66 +7,48 @@ use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request;
 use Huoban\Models\HuobanTicket;
-use Huoban\Models\HuobanToken;
 
 class Huoban
 {
-    public static $apiClient, $uploadClient;
+    public static $httpClient, $apiClient, $uploadClient, $biClient;
     public static $config;
     public static function init($config)
     {
         self::$config = $config;
+        self::setHttpClient();
     }
-    public static function getApiClient()
+    public static function execute($method, $url, $body = [], $options = [])
     {
-        if (!self::$apiClient) {
-            self::$apiClient = new Client([
-                'base_uri'    => self::$config['api_url'],
-                'timeout'     => 20.0,
-                'verify'      => false,
-                'http_errors' => false,
-            ]);
+        $request = Huoban::getRequest($method, $url, $body, $options);
+        if (isset($options['res_type']) && $options['res_type'] == 'request') {
+            return $request;
         }
-        // 生成不进行效验,错误不打断返回详细信息的客户端
-        return self::$apiClient;
-    }
-    public static function getUploadClient()
-    {
-        if (!self::$uploadClient) {
-            self::$uploadClient = new Client([
-                'base_uri'    => self::$config['upload_url'],
-                'timeout'     => 20.0,
-                'verify'      => false,
-                'http_errors' => false,
-                'headers'     => self::defaultHeader(),
-            ]);
-        }
-        return self::$uploadClient;
-    }
-    public static function defaultHeader($headers = [])
-    {
-        self::$config['ticket'] = self::$config['ticket'] ?? HuobanTicket::getTicket(self::$config);
-        self::$config['token']  = isset(self::$config['security_auth']) ? self::$config['token'] ?? HuobanToken::getToken(self::$config) : '';
-
-        $default_headers = [
-            'Content-Type'                   => 'application/json',
-            'X-Huoban-Ticket'                => self::$config['ticket'],
-            'X-Huoban-Return-Alias-Space-Id' => self::$config['space_id'] ?? '',
-            'X-Huoban-Security-Token'        => self::$config['token'],
-        ];
-        return $headers + $default_headers;
+        return Huoban::requestJsonSync($request);
     }
     public static function getRequest($method, $url, $body = [], $options = [])
     {
         $url     = $options['version'] ?? '/v2' . $url;
         $body    = json_encode($body);
-        $headers = Huoban::defaultHeader();
+        $headers = Huoban::defaultHeader($options);
         return new Request($method, $url, $headers, $body);
+    }
+    public static function defaultHeader($options = [])
+    {
+        self::$config['ticket'] = self::$config['ticket'] ?? HuobanTicket::getTicket(self::$config);
+
+        $default_headers = [
+            'Content-Type'                   => 'application/json',
+            'X-Huoban-Ticket'                => self::$config['ticket'],
+            'X-Huoban-Return-Alias-Space-Id' => self::$config['space_id'] ?? '',
+        ];
+        $headers = isset($options['headers']) ? $options['headers'] : [];
+
+        return $headers + $default_headers;
     }
     public static function requestJsonSync($request)
     {
         try {
-            $response = self::getApiClient()->send($request);
+            $response = self::getHttpClient()->send($request);
         } catch (ServerException $e) {
             $response = $e->getResponse();
         }
@@ -77,7 +59,7 @@ class Huoban
 
         $success_data = [];
         $error_data   = [];
-        $pool         = new Pool(self::getApiClient(), $requests, [
+        $pool         = new Pool(self::getHttpClient(), $requests, [
             'concurrency' => $concurrency,
             'fulfilled'   => function ($response, $index) use (&$success_data) {
                 $success_data[] = [
@@ -96,12 +78,59 @@ class Huoban
         $promise->wait();
         return ['success_data' => $success_data, 'error_data' => $error_data];
     }
-    public static function execute($method, $url, $body = [], $options = [])
+    public static function setHttpClient($type = 'api')
     {
-        $request = Huoban::getRequest($method, $url, $body, $options);
-        if (isset($options['res_type']) && $options['res_type'] == 'request') {
-            return $request;
+        if ($type == 'api') {
+            self::$httpClient = self::getApiClient();
         }
-        return Huoban::requestJsonSync($request);
+        if ($type == 'upload') {
+            self::$httpClient = self::getUploadClient();
+        }
+        if ($type == 'bi') {
+            self::$httpClient = self::getBiClient();
+        }
+    }
+    public static function getHttpClient()
+    {
+        return self::$httpClient;
+    }
+    public static function getApiClient()
+    {
+        if (!self::$apiClient) {
+            // 生成不进行效验,错误不打断返回详细信息的客户端
+            self::$apiClient = new Client([
+                'base_uri'    => defined('TEST') && constant('TEST') == true ? 'https://api.huoban.com' : 'https://api.huoban.com',
+                'timeout'     => 600,
+                'verify'      => false,
+                'http_errors' => false,
+            ]);
+        }
+        return self::$apiClient;
+    }
+    public static function getUploadClient()
+    {
+        if (!self::$uploadClient) {
+            self::$uploadClient = new Client([
+                'base_uri'    => defined('TEST') && constant('TEST') == true ? 'https://upload.huoban.com' : 'https://upload.huoban.com',
+                'timeout'     => 600,
+                'verify'      => false,
+                'http_errors' => false,
+                'headers'     => self::defaultHeader(),
+            ]);
+        }
+        return self::$uploadClient;
+    }
+    public static function getBiClient()
+    {
+        if (!self::$biClient) {
+            self::$biClient = new Client([
+                'base_uri'    => defined('TEST') && constant('TEST') == true ? 'https://bi.huoban.com' : 'https://bi.huoban.com',
+                'timeout'     => 600,
+                'verify'      => false,
+                'http_errors' => false,
+                'headers'     => self::defaultHeader(),
+            ]);
+        }
+        return self::$biClient;
     }
 }

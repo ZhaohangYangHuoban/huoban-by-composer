@@ -15,10 +15,10 @@ class HuobanItem
         $requests  = [];
         $responses = [];
         // 单次查询最高500条
-        $body['limit'] = 500;
-        $fir_response  = self::find($table, $body, $options + ['res_type' => 'response']);
+        $body['limit']  = 500;
+        $first_response = self::find($table, $body, $options + ['res_type' => 'response']);
         // 查询全部数据的所有请求
-        for ($i = 0; $i < ceil($fir_response['filtered'] / $body['limit']); $i++) {
+        for ($i = 0; $i < ceil($first_response['filtered'] / $body['limit']); $i++) {
             $body['offset'] = $body['limit'] * $i;
             $requests[]     = self::find($table, $body, $options + ['res_type' => 'request']);
         }
@@ -27,9 +27,9 @@ class HuobanItem
             return $requests;
         }
         // 如果查询结果不足500，直接返回结果集
-        if ($fir_response['filtered'] < $body['limit']) {
-            $fir_response['items'] = $fir_response['filtered'] >= 1 ? self::handleItems($fir_response['items']) : [];
-            return $fir_response;
+        if ($first_response['filtered'] < $body['limit']) {
+            $first_response['items'] = $first_response['filtered'] >= 1 ? self::handleItems($first_response['items']) : [];
+            return $first_response;
         }
         // 如果查询结果超过500，返回结果集并格式化批处理结果
         $responses    = Huoban::requestJsonPool($requests);
@@ -38,8 +38,8 @@ class HuobanItem
             $format_items = $format_items + self::handleItems($success_response['response']['items']);
         }
         return [
-            'total'    => $fir_response['total'],
-            'filtered' => $fir_response['filtered'],
+            'total'    => $first_response['total'],
+            'filtered' => $first_response['filtered'],
             'items'    => $format_items,
         ];
     }
@@ -76,7 +76,7 @@ class HuobanItem
     public static function handleItems($items)
     {
         $format_items = [];
-        foreach ($items as $index => $item) {
+        foreach ($items as $item) {
             $item_id                = (string) $item['item_id'];
             $format_items[$item_id] = self::returnDiy($item);
         }
