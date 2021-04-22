@@ -6,6 +6,7 @@ use Huoban\Huoban;
 
 class HuobanBiFile
 {
+    public static $interfaceType = 'bi';
     /**
      * 上传数据仓库数据文件（用于创建数据仓库表数据）
      *
@@ -38,14 +39,12 @@ class HuobanBiFile
         //        ],
         //  ];
 
-        Huoban::setHttpClient('bi');
         try {
-            $response = Huoban::getHttpClient()->request('POST', '/v2/app_sync/file', $body, $options);
+            $response = Huoban::getHttpClient(self::$interfaceType)->request('POST', '/v2/app_sync/file', $body, $options);
             $response = json_decode($response->getBody(), true);
         } catch (\Throwable $th) {
             $response = $th->getMessage();
         }
-        Huoban::setHttpClient('api');
         return $response;
 
     }

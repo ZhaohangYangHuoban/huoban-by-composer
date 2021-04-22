@@ -15,15 +15,19 @@ class Huoban
     public static function init($config)
     {
         self::$config = $config;
-        self::setHttpClient();
     }
     public static function execute($method, $url, $body = [], $options = [])
     {
         $request = Huoban::getRequest($method, $url, $body, $options);
-        if (isset($options['res_type']) && $options['res_type'] == 'request') {
+
+        $res_type = $options['res_type'] ?? 'request';
+        if ($res_type == 'response') {
             return $request;
         }
-        return Huoban::requestJsonSync($request);
+
+        $interface_type = $options['interface_type'] ?? 'api';
+
+        return Huoban::requestJsonSync($request, $interface_type);
     }
     public static function getRequest($method, $url, $body = [], $options = [])
     {
@@ -45,21 +49,21 @@ class Huoban
 
         return $headers + $default_headers;
     }
-    public static function requestJsonSync($request)
+    public static function requestJsonSync($request, $interface_type = 'api')
     {
         try {
-            $response = self::getHttpClient()->send($request);
+            $response = self::getHttpClient($interface_type)->send($request);
         } catch (ServerException $e) {
             $response = $e->getResponse();
         }
         return json_decode($response->getBody(), true);
     }
-    public static function requestJsonPool($requests, $concurrency = 100)
+    public static function requestJsonPool($requests, $interface_type = 'api', $concurrency = 20)
     {
 
-        $success_data = [];
-        $error_data   = [];
-        $pool         = new Pool(self::getHttpClient(), $requests, [
+        $success_data = $error_data = [];
+
+        $pool = new Pool(self::getHttpClient($interface_type), $requests, [
             'concurrency' => $concurrency,
             'fulfilled'   => function ($response, $index) use (&$success_data) {
                 $success_data[] = [
@@ -74,25 +78,23 @@ class Huoban
                 ];
             },
         ]);
+
         $promise = $pool->promise();
         $promise->wait();
         return ['success_data' => $success_data, 'error_data' => $error_data];
     }
-    public static function setHttpClient($type = 'api')
+    public static function getHttpClient($interface_type)
     {
-        if ($type == 'api') {
-            self::$httpClient = self::getApiClient();
+        if ($interface_type == 'api') {
+            $client = self::getApiClient();
         }
-        if ($type == 'upload') {
-            self::$httpClient = self::getUploadClient();
+        if ($interface_type == 'upload') {
+            $client = self::getUploadClient();
         }
-        if ($type == 'bi') {
-            self::$httpClient = self::getBiClient();
+        if ($interface_type == 'bi') {
+            $client = self::getBiClient();
         }
-    }
-    public static function getHttpClient()
-    {
-        return self::$httpClient;
+        return $client;
     }
     public static function getApiClient()
     {
