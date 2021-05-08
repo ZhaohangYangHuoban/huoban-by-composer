@@ -71,7 +71,7 @@ class HuobanItem
     }
     public static function get($item_id, $body = null, $options = [])
     {
-        return Huoban::execute('POST', "/item/{$item_id}", $body, $options);
+        return Huoban::execute('GET', "/item/{$item_id}", $body, $options);
     }
     public static function handleItems($items)
     {
