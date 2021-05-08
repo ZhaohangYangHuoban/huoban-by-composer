@@ -19,12 +19,11 @@ class Huoban
     public static function execute($method, $url, $body = [], $options = [])
     {
         $request = Huoban::getRequest($method, $url, $body, $options);
-
-        $res_type = $options['res_type'] ?? 'request';
-        if ($res_type == 'response') {
+        // 如果需要返回request对象（用于批量操作）
+        if (isset($options['res_type']) && $options['res_type'] == 'request') {
             return $request;
         }
-
+        // 普通接口请求('api')，上传请求('upload')，bi请求('bi')，
         $interface_type = $options['interface_type'] ?? 'api';
 
         return Huoban::requestJsonSync($request, $interface_type);

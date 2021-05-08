@@ -65,8 +65,6 @@ class HuobanTicket
 
     public static function parse($body = [], $options = [])
     {
-        $response = Huoban::execute('GET', "/ticket/parse", $body, $options);
-        return $response;
-
+        return Huoban::execute('GET', "/ticket/parse", $body, $options);
     }
 }
