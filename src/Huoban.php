@@ -95,12 +95,12 @@ class Huoban
         }
         return $client;
     }
-    public static function getApiClient()
+    public static function getApiClient($api_url = null)
     {
         if (!self::$apiClient) {
             // 生成不进行效验,错误不打断返回详细信息的客户端
             self::$apiClient = new Client([
-                'base_uri'    => defined('TEST') && constant('TEST') == true ? 'https://api.huoban.com' : 'https://api.huoban.com',
+                'base_uri'    => $api_url ?: self::$config['api_url'],
                 'timeout'     => 600,
                 'verify'      => false,
                 'http_errors' => false,
@@ -108,11 +108,11 @@ class Huoban
         }
         return self::$apiClient;
     }
-    public static function getUploadClient()
+    public static function getUploadClient($upload_url = null)
     {
         if (!self::$uploadClient) {
             self::$uploadClient = new Client([
-                'base_uri'    => defined('TEST') && constant('TEST') == true ? 'https://upload.huoban.com' : 'https://upload.huoban.com',
+                'base_uri'    => $upload_url ?: self::$config['upload_url'],
                 'timeout'     => 600,
                 'verify'      => false,
                 'http_errors' => false,
@@ -121,11 +121,11 @@ class Huoban
         }
         return self::$uploadClient;
     }
-    public static function getBiClient()
+    public static function getBiClient($bi_url = null)
     {
         if (!self::$biClient) {
             self::$biClient = new Client([
-                'base_uri'    => defined('TEST') && constant('TEST') == true ? 'https://bi.huoban.com' : 'https://bi.huoban.com',
+                'base_uri'    => $bi_url ?: self::$config['bi_url'],
                 'timeout'     => 600,
                 'verify'      => false,
                 'http_errors' => false,
