@@ -2,87 +2,131 @@
 
 namespace Huoban\Models;
 
-use Huoban\Huoban;
-
 class HuobanItem
 {
-    public static function find($table, $body = [], $options = [])
+    public $_huoban;
+
+    public function __construct($huoban)
     {
-        return Huoban::execute('POST', "/item/table/{$table}/find", $body, $options);
+        $this->_huoban = $huoban;
     }
-    public static function findAll($table, $body = [], $options = [])
+    public function findRequest($table, $body = [], $options = [])
     {
-        $requests  = [];
-        $responses = [];
-        // 单次查询最高500条
-        $body['limit']  = 500;
-        $first_response = self::find($table, $body, $options + ['res_type' => 'response']);
+        return $this->_huoban->getRequest('POST', "/item/table/{$table}/find", $body, $options);
+    }
+    public function find($table, $body = [], $options = [])
+    {
+        return $this->_huoban->execute('POST', "/item/table/{$table}/find", $body, $options);
+    }
+
+    public function findAllRequest($table, $body = [], $options = [])
+    {
+        $requests = [];
+
+        $first_response = $this->find($table, $body, $options + ['res_type' => 'response']);
         // 查询全部数据的所有请求
         for ($i = 0; $i < ceil($first_response['filtered'] / $body['limit']); $i++) {
             $body['offset'] = $body['limit'] * $i;
-            $requests[]     = self::find($table, $body, $options + ['res_type' => 'request']);
+            $requests[]     = $this->findRequest($table, $body, $options);
         }
-        // 如果获取的是请求
-        if (isset($options['res_type']) && $options['res_type'] == 'request') {
-            return $requests;
-        }
-        // 如果查询结果不足500，直接返回结果集
-        if ($first_response['filtered'] < $body['limit']) {
-            return $first_response;
-        }
-        // 如果查询结果超过500，返回结果集,key为item_id
-        $responses = Huoban::requestJsonPool($requests);
+        return $requests;
 
-        return [
-            'total'    => $first_response['total'],
-            'filtered' => $first_response['filtered'],
-            'items'    => (function () use ($responses) {
-                $items = [];
-                foreach ($responses['success_data'] as $success_response) {
-                    $items = $items + array_combine(array_column($success_response['response']['items'], 'item_id'), $success_response['response']['items']);
-                }
-                return $items;
-            })(),
-        ];
     }
-    public static function update($item_id, $body = [], $options = [])
+    public function findAll($table, $body = [], $options = [])
     {
-        return Huoban::execute('PUT', "/item/{$item_id}", $body, $options);
+        $responses = [];
+        $requests  = $this->findAllRequest($table, $body, $options);
+        // 返回结果集,key为item_id
+        $responses = $this->_huoban->requestJsonPool($requests);
+
+        $total    = null;
+        $filtered = null;
+        $items    = (function () use ($responses, &$filtered, &$total) {
+            $items = [];
+            foreach ($responses['success_data'] as $success_response) {
+                $total    = $total ?: $success_response['response']['total'];
+                $filtered = $filtered ?: $success_response['response']['filtered'];
+
+                $items = $items + array_combine(array_column($success_response['response']['items'], 'item_id'), $success_response['response']['items']);
+            }
+            return $items;
+        })();
+
+        return ['items' => $items, 'total' => $total, 'filtered' => $filtered];
     }
-    public static function updates($table, $body = [], $options = [])
+
+    public function updateRequest($item_id, $body = [], $options = [])
     {
-        return Huoban::execute('POST', "/item/table/{$table}/update", $body, $options);
+        return $this->_huoban->getRequest('PUT', "/item/{$item_id}", $body, $options);
     }
-    public static function create($table, $body = null, $options = [])
+    public function update($item_id, $body = [], $options = [])
     {
-        return Huoban::execute('POST', "/item/table/{$table}", $body, $options);
+        return $this->_huoban->execute('PUT', "/item/{$item_id}", $body, $options);
     }
-    public static function creates($table, $body = null, $options = [])
+
+    public function updatesRequest($table, $body = [], $options = [])
     {
-        return Huoban::execute('POST', "/item/table/{$table}/create", $body, $options);
+        return $this->_huoban->getRequest('POST', "/item/table/{$table}/update", $body, $options);
     }
-    public static function del($item_id, $body = null, $options = [])
+    public function updates($table, $body = [], $options = [])
     {
-        return Huoban::execute('POST', "/item/{$item_id}", $body, $options);
+        return $this->_huoban->execute('POST', "/item/table/{$table}/update", $body, $options);
     }
-    public static function dels($table, $body = null, $options = [])
+
+    public function createRequest($table, $body = null, $options = [])
     {
-        return Huoban::execute('POST', "/item/table/{$table}/delete", $body, $options);
+        return $this->_huoban->Request('POST', "/item/table/{$table}", $body, $options);
     }
-    public static function get($item_id, $body = null, $options = [])
+    public function create($table, $body = null, $options = [])
     {
-        return Huoban::execute('GET', "/item/{$item_id}", $body, $options);
+        return $this->_huoban->execute('POST', "/item/table/{$table}", $body, $options);
     }
-    public static function handleItems($items)
+
+    public function createsRequest($table, $body = null, $options = [])
+    {
+        return $this->_huoban->getRequest('POST', "/item/table/{$table}/create", $body, $options);
+    }
+    public function creates($table, $body = null, $options = [])
+    {
+        return $this->_huoban->execute('POST', "/item/table/{$table}/create", $body, $options);
+    }
+
+    public function delRequest($item_id, $body = null, $options = [])
+    {
+        return $this->_huoban->getRequest('POST', "/item/{$item_id}", $body, $options);
+    }
+    public function del($item_id, $body = null, $options = [])
+    {
+        return $this->_huoban->execute('POST', "/item/{$item_id}", $body, $options);
+    }
+
+    public function delsRequest($table, $body = null, $options = [])
+    {
+        return $this->_huoban->getRequest('POST', "/item/table/{$table}/delete", $body, $options);
+    }
+    public function dels($table, $body = null, $options = [])
+    {
+        return $this->_huoban->execute('POST', "/item/table/{$table}/delete", $body, $options);
+    }
+
+    public function getRequest($item_id, $body = null, $options = [])
+    {
+        return $this->_huoban->getRequest('GET', "/item/{$item_id}", $body, $options);
+    }
+    public function get($item_id, $body = null, $options = [])
+    {
+        return $this->_huoban->execute('GET', "/item/{$item_id}", $body, $options);
+    }
+    public function handleItems($items)
     {
         $format_items = [];
         foreach ($items as $item) {
             $item_id                = (string) $item['item_id'];
-            $format_items[$item_id] = self::returnDiy($item);
+            $format_items[$item_id] = $this->returnDiy($item);
         }
         return $format_items;
     }
-    public static function returnDiy($item)
+    public function returnDiy($item)
     {
         $format_item = [];
         foreach ($item['fields'] as $field) {
