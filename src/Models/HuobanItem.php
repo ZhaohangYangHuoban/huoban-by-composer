@@ -2,11 +2,13 @@
 
 namespace Huoban\Models;
 
+use Huoban\Huoban;
+
 class HuobanItem
 {
     public $_huoban;
 
-    public function __construct($huoban)
+    public function __construct(Huoban $huoban)
     {
         $this->_huoban = $huoban;
     }
@@ -75,7 +77,7 @@ class HuobanItem
 
     public function createRequest($table, $body = null, $options = [])
     {
-        return $this->_huoban->Request('POST', "/item/table/{$table}", $body, $options);
+        return $this->_huoban->getRequest('POST', "/item/table/{$table}", $body, $options);
     }
     public function create($table, $body = null, $options = [])
     {

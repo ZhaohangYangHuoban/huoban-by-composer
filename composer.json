@@ -1,20 +1,20 @@
 {
-    "name": "zhaohangyang/huoban_guzzlehttp",
-    "require": {
-        "guzzlehttp/guzzle": "~6.0",
-        "symfony/cache": "^5.2"
-    },
-    "repositories": {
-        "packagist": {
-            "type": "composer",
-            "url": "https://mirrors.aliyun.com/composer/"
-        }
-    },
-    "autoload": {
-        "psr-4": {
-            "Huoban\\": "src/",
-            "Huoban\\Models\\": "src/Models",
-            "Huoban\\Helpers\\": "src/Helpers"
-        }
+  "name": "zhaohangyang/huoban_guzzlehttp",
+  "require": {
+    "guzzlehttp/guzzle": "~6.0",
+    "symfony/cache": "~5.0"
+  },
+  "repositories": {
+    "packagist": {
+      "type": "composer",
+      "url": "https://mirrors.aliyun.com/composer/"
     }
+  },
+  "autoload": {
+    "psr-4": {
+      "Huoban\\": "src/",
+      "Huoban\\Models\\": "src/Models",
+      "Huoban\\Helpers\\": "src/Helpers"
+    }
+  }
 }
