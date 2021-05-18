@@ -1,8 +1,7 @@
 {
   "name": "zhaohangyang/huoban_guzzlehttp",
   "require": {
-    "guzzlehttp/guzzle": "~6.0",
-    "symfony/cache": "^5.2.0"
+    "guzzlehttp/guzzle": "~6.0"
   },
   "repositories": {
     "packagist": {

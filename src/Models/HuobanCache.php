@@ -22,7 +22,7 @@ class HuobanCache
 
     public function set($name, $value, $expired = 0)
     {
-        $file_name = $this->path . '/' . $name;
+        $file_name = $this->path . $name;
         $file_data = ['name' => $name, 'value' => $value, 'expired' => $expired, 'create_at' => time()];
 
         return file_put_contents($file_name, json_encode($file_data));
@@ -30,7 +30,7 @@ class HuobanCache
 
     public function get($name, $default_value = null)
     {
-        $file_name = $this->path . '/' . $name;
+        $file_name = $this->path . $name;
         if (!is_file($file_name)) {
             return $default_value;
         }
