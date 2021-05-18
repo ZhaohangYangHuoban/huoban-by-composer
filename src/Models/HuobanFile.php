@@ -6,7 +6,13 @@ use Huoban\Huoban;
 
 class HuobanFile
 {
-    public static $interfaceType = 'upload';
+    public $interfaceType = 'upload';
+    public $_huoban;
+
+    public function __construct(Huoban $huoban)
+    {
+        $this->_huoban = $huoban;
+    }
     /**
      * 上传文件
      *
@@ -14,7 +20,7 @@ class HuobanFile
      * @param array $options
      * @return void
      */
-    public static function upload($body = [], $options = [])
+    public function upload($body = [], $options = [])
     {
         //  example
 
@@ -35,7 +41,7 @@ class HuobanFile
         //      ],
         //  ];
 
-        $response = Huoban::getHttpClient(self::$interfaceType)->request('POST', "/file", $body, $options);
+        $response = $this->_huoban->getHttpClient($this->interfaceType)->request('POST', "/file", $body, $options);
         return json_decode($response->getBody(), true);
     }
 }

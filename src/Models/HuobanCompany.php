@@ -6,42 +6,60 @@ use Huoban\Huoban;
 
 class HuobanCompany
 {
-    public static function getMemberAll($company_id = null, $body = [], $options = [])
+    public $_huoban;
+
+    public function __construct(Huoban $huoban)
     {
-        $requests  = [];
-        $responses = [];
+        $this->_huoban = $huoban;
+    }
+    public function getMemberAllRequest($company_id = null, $body = [], $options = [])
+    {
+        $requests = [];
         // 单次查询最高500条
-        $body['limit'] = 500;
-        $fir_response  = self::getMember($company_id, $body, $options + ['res_type' => 'response']);
+        $body['limit'] = 1;
+        $fir_response  = $this->getMember($company_id, $body, $options);
         // 查询全部数据的所有请求
         for ($i = 0; $i < ceil($fir_response['joined_total'] / $body['limit']); $i++) {
-            $body['offset'] = $body['limit'] * $i;
-            $requests[]     = self::getMember($company_id, $body, $options + ['res_type' => 'request']);
+            $requests[] = $this->getMember($company_id, $body, $options + ['res_type' => 'request']);
         }
-        // 如果获取的是请求
-        if (isset($options['res_type']) && $options['res_type'] == 'request') {
-            return $requests;
-        }
-        // 如果查询结果不足500，直接返回结果集
-        if ($fir_response['joined_total'] < $body['limit']) {
-            return $fir_response;
-        }
-        // 如果查询结果超过500，返回结果集并格式化批处理结果
-        $responses = Huoban::requestJsonPool($requests);
-        foreach ($responses['success_data'] as $success_response) {
-            foreach ($success_response['response']['members'] as $member) {
-                $format_items[] = $member;
-            }
-        }
-        return [
-            'total'          => $fir_response['total'],
-            'joined_total'   => $fir_response['joined_total'],
-            'unactive_total' => $fir_response['unactive_total'],
-            'members'        => $format_items,
-        ];
+        return $requests;
     }
-    public static function getMember($company_id, $body = [], $options = [])
+
+    public function getMemberAll($table, $body = [], $options = [])
     {
-        return Huoban::execute('POST', "/company_members/company/{$company_id}", $body, $options);
+        $responses = [];
+        $requests  = $this->getMemberAllRequest($table, $body, $options);
+        // 返回结果集,key为item_id
+        $responses = $this->_huoban->requestJsonPool($requests);
+
+        $total          = null;
+        $joined_total   = null;
+        $unactive_total = null;
+
+        $items = (function () use ($responses, &$joined_total, &$unactive_total, &$total) {
+            $items = [];
+            foreach ($responses['success_data'] as $success_response) {
+                $total          = $total ?: $success_response['response']['total'];
+                $joined_total   = $joined_total ?: $success_response['response']['joined_total'];
+                $unactive_total = $unactive_total ?: $success_response['response']['unactive_total'];
+
+                foreach ($success_response['response']['members'] as $member) {
+                    $items[] = $member;
+                }
+
+            }
+            return $items;
+        })();
+
+        return ['total' => $total, 'joined_total' => $joined_total, 'unactive_total' => $unactive_total, 'members' => $items];
+    }
+
+    public function getMemberRequest($company_id, $body = [], $options = [])
+    {
+        return $this->_huoban->getRequest('POST', "/company_members/company/{$company_id}", $body, $options);
+    }
+    public function getMember($company_id, $body = [], $options = [])
+    {
+        return $this->_huoban->execute('POST', "/company_members/company/{$company_id}", $body, $options);
     }
 }

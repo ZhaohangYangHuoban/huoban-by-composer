@@ -6,17 +6,22 @@ use Huoban\Huoban;
 
 class HuobanFollow
 {
+    public $_huoban;
 
-    public static function create($item_id, $body = [], $options = [])
+    public function __construct(Huoban $huoban)
     {
-        return Huoban::execute('POST', "/follow/item/{$item_id}", $body, $options);
+        $this->_huoban = $huoban;
     }
-    public static function delete($ref_id, $body = [], $options = [])
+    public function create($item_id, $body = [], $options = [])
     {
-        return Huoban::execute('POST', "/follow/item/{$ref_id}", $body, $options);
+        return $this->_huoban->execute('POST', "/follow/item/{$item_id}", $body, $options);
     }
-    public static function getAll($item_id, $body = [], $options = [])
+    public function delete($ref_id, $body = [], $options = [])
     {
-        return Huoban::execute('POST', "/follow/item/{$item_id}/find", $body, $options);
+        return $this->_huoban->execute('POST', "/follow/item/{$ref_id}", $body, $options);
+    }
+    public function getAll($item_id, $body = [], $options = [])
+    {
+        return $this->_huoban->execute('POST', "/follow/item/{$item_id}/find", $body, $options);
     }
 }

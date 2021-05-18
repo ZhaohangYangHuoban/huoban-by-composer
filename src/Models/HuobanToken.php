@@ -7,7 +7,12 @@ use Huoban\Huoban;
 
 class HuobanToken
 {
-    public static function getToken($config = [], $options = [])
+    public $_huoban;
+    public function __construct($huoban)
+    {
+        $this->_huoban = $huoban;
+    }
+    public function getToken($config = [], $options = [])
     {
         $request = new Request('POST', '/v2/user/security_auth', [
             'X-Huoban-Ticket' => $config['ticket'],
@@ -18,7 +23,7 @@ class HuobanToken
         if (isset($options['res_type']) && $options['res_type'] == 'request') {
             return $request;
         }
-        $response = Huoban::requestJsonSync($request);
+        $response = $this->_huoban->requestJsonSync($request);
         return $response[0]['token'];
     }
 }

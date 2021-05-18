@@ -7,6 +7,12 @@ use Huoban\Huoban;
 class HuobanTable
 {
 
+    public $_huoban;
+
+    public function __construct(Huoban $huoban)
+    {
+        $this->_huoban = $huoban;
+    }
     /**
      * 获取表结构
      *
@@ -15,9 +21,9 @@ class HuobanTable
      * @param array $options
      * @return void
      */
-    public static function get($table, $body = null, $options = [])
+    public function get($table, $body = null, $options = [])
     {
-        return Huoban::execute('GET', "/table/{$table}", $body, $options);
+        return $this->_huoban->execute('GET', "/table/{$table}", $body, $options);
     }
     /**
      * 创建表
@@ -27,40 +33,40 @@ class HuobanTable
      * @param array $options
      * @return void
      */
-    public static function create($space_id, $body = null, $options = [])
+    public function create($space_id, $body = null, $options = [])
     {
-        return Huoban::execute('POST', "/table/space/{$space_id}", $body, $options);
+        return $this->_huoban->execute('POST', "/table/space/{$space_id}", $body, $options);
 
         /**
          * 创建格式化body实例
          */
-        $fields[] = HuobanTable::getFieldTextBasic('test', 'field_A');
-        $body     = HuobanTable::getTableBasic('test1', 'table_test1', $fields);
+        $fields[] = $this->getFieldTextBasic('test', 'field_A');
+        $body     = $this->getTableBasic('test1', 'table_test1', $fields);
     }
 
-    public static function update($table, $body = null, $options = [])
+    public function update($table, $body = null, $options = [])
     {
-        return Huoban::execute('PUT', "/table/{$table}", $body, $options);
+        return $this->_huoban->execute('PUT', "/table/{$table}", $body, $options);
     }
 
-    public static function copy($table, $body = null, $options = [])
+    public function copy($table, $body = null, $options = [])
     {
-        return Huoban::execute('POST', "/table/{$table}/copy", $body, $options);
+        return $this->_huoban->execute('POST', "/table/{$table}/copy", $body, $options);
     }
 
-    public static function setAlias($table, $body = null, $options = [])
+    public function setAlias($table, $body = null, $options = [])
     {
-        return Huoban::execute('POST', "/table/{$table}/alias", $body, $options);
+        return $this->_huoban->execute('POST', "/table/{$table}/alias", $body, $options);
     }
 
-    public static function getTables($space_id, $body = null, $options = [])
+    public function getTables($space_id, $body = null, $options = [])
     {
-        return Huoban::execute('GET', "/tables/space/{$space_id}", $body, $options);
+        return $this->_huoban->execute('GET', "/tables/space/{$space_id}", $body, $options);
     }
 
-    public static function getPermissions($table, $body = null, $options = [])
+    public function getPermissions($table, $body = null, $options = [])
     {
-        return Huoban::execute('POST', "/permissions/table/{$table}", $body, $options);
+        return $this->_huoban->execute('POST', "/permissions/table/{$table}", $body, $options);
     }
 
     /**
@@ -71,7 +77,7 @@ class HuobanTable
      * @param array $fields
      * @return void
      */
-    public static function getTableBasic($name, $alias = null, $fields = [])
+    public function getTableBasic($name, $alias = null, $fields = [])
     {
         return [
             'table_id'                  => '',
@@ -131,7 +137,7 @@ class HuobanTable
      * @param array $fields
      * @return void
      */
-    public static function getFieldTextBasic($name, $alias = null)
+    public function getFieldTextBasic($name, $alias = null)
     {
         return [
             'field_id'        => 'rcacwzha',

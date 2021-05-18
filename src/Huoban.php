@@ -6,14 +6,14 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request;
+use Huoban\Models\HuobanCache;
 use Huoban\Models\HuobanItem;
+use Huoban\Models\HuobanTable;
 use Huoban\Models\HuobanTicket;
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 
 class Huoban
 {
     public $httpClient, $apiClient, $uploadClient, $biClient;
-    public $_cache, $_item, $_ticket;
     public $config;
 
     public function __construct($config)
@@ -48,7 +48,7 @@ class Huoban
     {
         $default_headers = [
             'Content-Type'                   => 'application/json',
-            'X-Huoban-Ticket'                => $this->config['ticket'] ?? $this->ticket()->getTicket($this->config),
+            'X-Huoban-Ticket'                => $this->config['ticket'] ?? $this->_ticket->getTicket($this->config),
             'X-Huoban-Return-Alias-Space-Id' => $this->config['space_id'] ?? '',
         ];
         $headers = isset($options['headers']) ? $options['headers'] : [];
@@ -141,44 +141,25 @@ class Huoban
         }
         return $this->biClient;
     }
-    public function ticket()
+    public function __get($class_name)
     {
-        if (!$this->_ticket) {
-            $this->_ticket = new HuobanTicket($this);
+        switch ($class_name) {
+            case '_ticket':
+                $class_obj = $this->_ticket = new HuobanTicket($this);
+                break;
+            case '_item':
+                $class_obj = $this->_item = new HuobanItem($this);
+                break;
+            case '_table':
+                $class_obj = $this->_table = new HuobanTable($this);
+                break;
+            case '_cache':
+                $class_obj = $this->_table = new HuobanCache($this);
+                break;
+            default:
+                break;
         }
-        return $this->_ticket;
-    }
-    public function item()
-    {
-        if (!$this->_item) {
-            $this->_item = new HuobanItem($this);
-        }
-        return $this->_item;
-    }
+        return $class_obj;
 
-    public function cache()
-    {
-        if (!$this->_cache) {
-            $this->_cache = new FilesystemAdapter();
-        }
-        return $this->_cache;
     }
-
-    // public function item($bi_url = null)
-    // {}
-    // public function item($bi_url = null)
-    // {}
-    // public function item($bi_url = null)
-    // {}
-    // public function item($bi_url = null)
-    // {}
-    // public function item($bi_url = null)
-    // {}
-    // public function item($bi_url = null)
-    // {}
-    // public function item($bi_url = null)
-    // {}
-    // public function item($bi_url = null)
-    // {}
-
 }
