@@ -17,6 +17,8 @@ class Huoban
     public $httpClient, $apiClient, $uploadClient, $biClient;
     public $config;
 
+    private $_ticket, $_item, $_table, $_cache, $_space;
+
     public function __construct($config)
     {
         $this->config = $config + [
@@ -146,21 +148,20 @@ class Huoban
     {
         switch ($class_name) {
             case '_ticket':
-                $class_obj = $this->_ticket = new HuobanTicket($this);
+                $class_obj = $this->_ticket = $this->_ticket ?? new HuobanTicket($this);
                 break;
             case '_item':
-                $class_obj = $this->_item = new HuobanItem($this);
+                $class_obj = $this->_item = $this->_item ?? new HuobanItem($this);
                 break;
             case '_table':
-                $class_obj = $this->_table = new HuobanTable($this);
+                $class_obj = $this->_table = $this->_table ?? new HuobanTable($this);
                 break;
             case '_cache':
-                $class_obj = $this->_cache = new HuobanCache($this);
+                $class_obj = $this->_cache = $this->_cache ?? new HuobanCache($this);
                 break;
             case '_space':
-                $class_obj = $this->_cache = new HuobanSpace($this);
+                $class_obj = $this->_space = $this->_space ?? new HuobanSpace($this);
                 break;
-
             default:
                 break;
         }
