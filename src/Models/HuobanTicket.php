@@ -25,7 +25,7 @@ class HuobanTicket
         $ticket_name = $this->_huoban->config['name'] . '_enterprise_ticket';
         $expired     = $options['expired'] ?? 1209600;
 
-        $ticket = $this->_huoban->catch->remember($ticket_name, $expired - 3600, function () use ($application_id, $application_secret, $expired) {
+        $ticket = $this->_huoban->_cache->remember($ticket_name, $expired - 3600, function () use ($application_id, $application_secret, $expired) {
             $request  = $this->getForEnterpriseRequest($application_id, $application_secret, $expired);
             $response = $this->_huoban->requestJsonSync($request);
             return $response['ticket'];

@@ -8,6 +8,7 @@ use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request;
 use Huoban\Models\HuobanCache;
 use Huoban\Models\HuobanItem;
+use Huoban\Models\HuobanSpace;
 use Huoban\Models\HuobanTable;
 use Huoban\Models\HuobanTicket;
 
@@ -154,8 +155,12 @@ class Huoban
                 $class_obj = $this->_table = new HuobanTable($this);
                 break;
             case '_cache':
-                $class_obj = $this->_table = new HuobanCache($this);
+                $class_obj = $this->_cache = new HuobanCache($this);
                 break;
+            case '_space':
+                $class_obj = $this->_cache = new HuobanSpace($this);
+                break;
+
             default:
                 break;
         }
