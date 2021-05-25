@@ -37,15 +37,16 @@ class HuobanCache
         $file_data = json_decode(file_get_contents($file_name), true);
 
         return (time() - $file_data['create_at']) <= $file_data['expired'] ? $file_data['value'] : null;
-
     }
 
     public function remember($name, $expired, $concrete)
     {
+
         $value = $this->get($name);
+
         if (!$value) {
             $value = $concrete instanceof Closure ? $concrete() : $concrete;
-            $value = $this->set($name, $value, $expired);
+            $this->set($name, $value, $expired);
         }
         return $value;
     }

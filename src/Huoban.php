@@ -17,8 +17,6 @@ class Huoban
     public $httpClient, $apiClient, $uploadClient, $biClient;
     public $config;
 
-    private $_ticket, $_item, $_table, $_cache, $_space;
-
     public function __construct($config)
     {
         $this->config = $config + [
@@ -49,6 +47,7 @@ class Huoban
     }
     public function defaultHeader($options = [])
     {
+
         $default_headers = [
             'Content-Type'                   => 'application/json',
             'X-Huoban-Ticket'                => $this->config['ticket'] ?? $this->_ticket->getTicket($this->config),
@@ -65,6 +64,7 @@ class Huoban
         } catch (ServerException $e) {
             $response = $e->getResponse();
         }
+
         return json_decode($response->getBody(), true);
     }
     public function requestJsonPool($requests, $interface_type = 'api', $concurrency = 20)

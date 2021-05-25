@@ -30,7 +30,6 @@ class HuobanTicket
             $response = $this->_huoban->requestJsonSync($request);
             return $response['ticket'];
         });
-
         return $ticket;
     }
 

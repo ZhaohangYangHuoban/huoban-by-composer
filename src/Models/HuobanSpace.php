@@ -14,10 +14,10 @@ class HuobanSpace
     }
     public function getSpaceRequest($space_id, $body = [], $options = [])
     {
-        return $this->_huoban->getRequest('GET', "/v2/space/{$space_id}", $body, $options);
+        return $this->_huoban->getRequest('GET', "/space/{$space_id}", $body, $options);
     }
     public function getSpace($space_id, $body = [], $options = [])
     {
-        return $this->_huoban->execute('GET', "/v2/space/{$space_id}", $body, $options);
+        return $this->_huoban->execute('GET', "/space/{$space_id}", $body, $options);
     }
 }
