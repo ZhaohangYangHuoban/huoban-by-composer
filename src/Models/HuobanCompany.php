@@ -4,6 +4,9 @@ namespace Huoban\Models;
 
 use Huoban\Huoban;
 
+/**
+ * 伙伴公司接口
+ */
 class HuobanCompany
 {
     public $_huoban;

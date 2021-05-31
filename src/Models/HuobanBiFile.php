@@ -4,8 +4,16 @@ namespace Huoban\Models;
 
 use Huoban\Huoban;
 
+/**
+ * BI 文件上传
+ */
 class HuobanBiFile
 {
+    /**
+     * 请求类型
+     *
+     * @var string
+     */
     public $interfaceType = 'bi';
     public $_huoban;
 

@@ -1,13 +1,31 @@
 <?php
+/*
+ * @Author: ZhaohangYang <yangzhaohang@comsenz-service.com>
+ * @Date: 2021-05-25 10:26:41
+ * @Description: 伙伴智慧大客户研发部
+ */
 
 namespace Huoban\Models;
 
 use Huoban\Huoban;
 
+/**
+ * 伙伴BI基础类
+ */
 class HuobanBi
 {
+    /**
+     * 伙伴实例
+     *
+     * @var [\Huoban\Huoban]
+     */
     public $_huoban;
 
+    /**
+     * 初始化 $_huoban
+     *
+     * @param Huoban $huoban
+     */
     public function __construct(Huoban $huoban)
     {
         $this->_huoban = $huoban;
