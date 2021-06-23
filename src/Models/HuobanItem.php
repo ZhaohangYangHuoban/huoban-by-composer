@@ -3,9 +3,14 @@
 namespace Huoban\Models;
 
 use Huoban\Huoban;
+use Huoban\Models\Package\Item;
+use Huoban\Models\Package\Items;
 
 class HuobanItem
 {
+    use Item;
+    use Items;
+
     public $_huoban;
 
     public function __construct(Huoban $huoban)
