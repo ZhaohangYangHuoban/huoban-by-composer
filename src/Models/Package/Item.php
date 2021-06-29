@@ -15,7 +15,7 @@ trait Item
      */
     public function getItem($item_id)
     {
-        $item = parent::get($item_id);
+        $item = $this->get($item_id);
         if (isset($item['code'])) {
             throw new \Exception("根据item_id/{$item_id}，获取数据失败：" . $item['message'], 100001);
         }
@@ -30,7 +30,7 @@ trait Item
     public function getFormatItem($item_id)
     {
         $item = $this->getItem($item_id);
-        return parent::returnDiy($item);
+        return $this->returnDiy($item);
     }
     /**
      * 更新数据
@@ -41,7 +41,7 @@ trait Item
      */
     public function updateItem($item_id, $body)
     {
-        return parent::update($item_id, $body);
+        return $this->update($item_id, $body);
     }
     /**
      * 更新数据并返回格式化的数据信息
@@ -53,7 +53,7 @@ trait Item
     public function updateFormatItem($item_id, $body)
     {
         $item = $this->updateItem($item_id, $body);
-        return parent::returnDiy($item);
+        return $this->returnDiy($item);
     }
 
     /**
@@ -81,7 +81,7 @@ trait Item
             ],
         ];
 
-        $response = parent::$_huoban->_file->upload($body);
+        $response = $this->_huoban->_file->upload($body);
         if (!isset($response['file_id'])) {
             throw new \Exception("上传文件失败" . $response['message'], 100003);
         }

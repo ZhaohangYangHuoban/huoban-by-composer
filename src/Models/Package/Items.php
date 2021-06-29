@@ -28,7 +28,7 @@ trait Items
                 ],
             ],
         ];
-        $response = parent::find($table, $body);
+        $response = $this->find($table, $body);
 
         if (isset($response['code'])) {
             throw new \Exception("根据item_ids/" . implode('、', $item_ids) . "，从表格/{$table}，中获取数据集合失败" . $response['message'], 100002);
@@ -45,7 +45,7 @@ trait Items
     public function getFormatItems($table, array $item_ids)
     {
         $items = $this->getItems($table, $item_ids);
-        return parent::handleItems($items);
+        return $this->handleItems($items);
     }
 
     /**
@@ -57,7 +57,7 @@ trait Items
      */
     public function findItems($table, $body)
     {
-        $response = parent::find($table, $body);
+        $response = $this->find($table, $body);
 
         if (isset($response['code'])) {
             throw new \Exception("根据item_ids/" . json_encode($body) . "，从表格/{$table}，中获取数据集合失败" . $response['message'], 100002);
@@ -74,39 +74,8 @@ trait Items
     public function findFormatItems($table, $body)
     {
         $items = $this->findItems($table, $body);
-        return parent::handleItems($items);
+        return $this->handleItems($items);
 
     }
 
-    /**
-     * 上传文件 到伙伴平台，返回file_id
-     *
-     * @param [type] $file_data
-     * @return void
-     */
-    public function uploadHuoban($file_data)
-    {
-        $body = [
-            'multipart' => [
-                [
-                    'contents' => fopen($file_data['file_path'], 'r'),
-                    'name'     => 'source',
-                ],
-                [
-                    'name'     => 'type',
-                    'contents' => 'attachment',
-                ],
-                [
-                    'name'     => 'name',
-                    'contents' => $file_data['file_name'],
-                ],
-            ],
-        ];
-
-        $response = parent::$_huoban->_file->upload($body);
-        if (!isset($response['file_id'])) {
-            throw new \Exception("上传文件失败" . $response['message'], 100003);
-        }
-        return $response['file_id'];
-    }
 }
