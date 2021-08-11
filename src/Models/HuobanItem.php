@@ -104,12 +104,12 @@ class HuobanItem
     }
     public function del($item_id, $body = null, $options = [])
     {
-        return $this->_huoban->execute('POST', "/item/{$item_id}", $body, $options);
+        return $this->_huoban->execute('DELETE', "/item/{$item_id}", $body, $options);
     }
 
     public function delsRequest($table, $body = null, $options = [])
     {
-        return $this->_huoban->getRequest('POST', "/item/table/{$table}/delete", $body, $options);
+        return $this->_huoban->getRequest('DELETE', "/item/table/{$table}/delete", $body, $options);
     }
     public function dels($table, $body = null, $options = [])
     {
