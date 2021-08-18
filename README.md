@@ -4,12 +4,24 @@
 
 1./vendor/guzzlehttp/guzzle/src/ClientInterface.php
 public function request($method, $uri, array $options = []);
+
+---
+
     替换为
+
+---
+
 public function request($method, $uri = null, array $options = []);
 
 ---
 
 2./vendor/guzzlehttp/guzzle/src/ClientInterface.php
-if (count($this->handles) >= $this->maxHandles) {  
+if (count($this->handles) >= $this->maxHandles) {
+
+---
+
     替换为
+
+---
+
 if (is_array($this->handles) && count($this->handles) >= $this->maxHandles) {
