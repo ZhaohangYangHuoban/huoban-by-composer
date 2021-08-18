@@ -1,5 +1,5 @@
 {
-  "name": "zhaohangyang/huoban_guzzlehttp",
+  "name": "zhaohangyang/huoban_tools_php",
   "require": {
     "guzzlehttp/guzzle": "~6.0"
   },
