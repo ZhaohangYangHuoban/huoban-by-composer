@@ -8,13 +8,27 @@ namespace Huoban\Models\Package;
 trait Items
 {
     /**
+     * 根据筛选器集合，返回对应格式化数据集合
+     *
+     * @param [type] $table 表格：id/别名
+     * @param [array] $body
+     * @return array
+     */
+    public function findFormatItems($table, $body = [], $options = [])
+    {
+        $response          = $this->find($table, $body, $options);
+        $response['items'] = $this->handleItems($response['items']);
+        return isset($options['all_fields']) ? $response : $response['items'];
+    }
+
+    /**
      * 根据item_ids集合，返回对应数据集合
      *
      * @param [type] $table 表格：id/别名
      * @param [array] $item_ids
      * @return array
      */
-    public function getItems($table, array $item_ids)
+    public function findForItemIds($table, array $item_ids, $options)
     {
         $body = [
             'where' => [
@@ -28,13 +42,9 @@ trait Items
                 ],
             ],
         ];
-        $response = $this->find($table, $body);
-
-        if (isset($response['code'])) {
-            throw new \Exception("根据item_ids/" . implode('、', $item_ids) . "，从表格/{$table}，中获取数据集合失败" . $response['message'], 100002);
-        }
-        return $response['items'];
+        return $this->find($table, $body, $options);
     }
+
     /**
      * 根据item_ids集合，返回对应格式化数据集合
      *
@@ -42,40 +52,11 @@ trait Items
      * @param [array] $item_ids
      * @return array
      */
-    public function getFormatItems($table, array $item_ids)
+    public function findFormatItemsForItemIds($table, array $item_ids, $options = [])
     {
-        $items = $this->getItems($table, $item_ids);
-        return $this->handleItems($items);
-    }
-
-    /**
-     * 根据筛选器集合，返回对应数据集合
-     *
-     * @param [type] $table 表格：id/别名
-     * @param [array] $body
-     * @return array
-     */
-    public function findItems($table, $body)
-    {
-        $response = $this->find($table, $body);
-
-        if (isset($response['code'])) {
-            throw new \Exception("根据item_ids/" . json_encode($body) . "，从表格/{$table}，中获取数据集合失败" . $response['message'], 100002);
-        }
-        return $response['items'];
-    }
-    /**
-     * 根据筛选器集合，返回对应格式化数据集合
-     *
-     * @param [type] $table 表格：id/别名
-     * @param [array] $body
-     * @return array
-     */
-    public function findFormatItems($table, $body)
-    {
-        $items = $this->findItems($table, $body);
-        return $this->handleItems($items);
-
+        $response          = $this->findForItemIds($table, $item_ids, $options);
+        $response['items'] = $this->handleItems($response['items']);
+        return $response;
     }
 
 }

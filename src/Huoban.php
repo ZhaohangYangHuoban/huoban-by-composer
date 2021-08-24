@@ -13,6 +13,7 @@ use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request;
 use Huoban\Models\HuobanCache;
 use Huoban\Models\HuobanItem;
+use Huoban\Models\HuobanProcedure;
 use Huoban\Models\HuobanSpace;
 use Huoban\Models\HuobanTable;
 use Huoban\Models\HuobanTicket;
@@ -178,13 +179,13 @@ class Huoban
      */
     public function getHttpClient($interface_type)
     {
-        if ($interface_type == 'api') {
+        if ('api' == $interface_type) {
             $client = $this->getApiClient();
         }
-        if ($interface_type == 'upload') {
+        if ('upload' == $interface_type) {
             $client = $this->getUploadClient();
         }
-        if ($interface_type == 'bi') {
+        if ('bi' == $interface_type) {
             $client = $this->getBiClient();
         }
         return $client;
@@ -269,6 +270,8 @@ class Huoban
                 break;
             case '_space':
                 $class_obj = $this->_space = $this->_space ?? new HuobanSpace($this);
+            case '_procedure':
+                $class_obj = $this->_procedure = $this->_procedure ?? new HuobanProcedure($this);
                 break;
             default:
                 break;
