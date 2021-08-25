@@ -11,12 +11,23 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request;
+use Huoban\Models\HuobanBi;
+use Huoban\Models\HuobanBiFile;
+use Huoban\Models\HuobanBiTable;
 use Huoban\Models\HuobanCache;
+use Huoban\Models\HuobanComment;
+use Huoban\Models\HuobanCompany;
 use Huoban\Models\HuobanItem;
+use Huoban\Models\HuobanMembers;
+use Huoban\Models\HuobanNotification;
 use Huoban\Models\HuobanProcedure;
+use Huoban\Models\HuobanShare;
 use Huoban\Models\HuobanSpace;
+use Huoban\Models\HuobanStream;
 use Huoban\Models\HuobanTable;
 use Huoban\Models\HuobanTicket;
+use Huoban\Models\HuobanToken;
+use Huoban\Models\HuobanUser;
 
 class Huoban
 {
@@ -273,6 +284,40 @@ class Huoban
             case '_procedure':
                 $class_obj = $this->_procedure = $this->_procedure ?? new HuobanProcedure($this);
                 break;
+            case '_comment':
+                $class_obj = $this->_comment = $this->_comment ?? new HuobanComment($this);
+                break;
+            case '_user':
+                $class_obj = $this->_user = $this->_user ?? new HuobanUser($this);
+                break;
+            case '_members':
+                $class_obj = $this->_members = $this->_members ?? new HuobanMembers($this);
+                break;
+            case '_notification':
+                $class_obj = $this->_notification = $this->_notification ?? new HuobanNotification($this);
+                break;
+            case '_token':
+                $class_obj = $this->_token = $this->_token ?? new HuobanToken($this);
+                break;
+            case '_stream':
+                $class_obj = $this->_stream = $this->_stream ?? new HuobanStream($this);
+                break;
+            case '_share':
+                $class_obj = $this->_share = $this->_share ?? new HuobanShare($this);
+                break;
+            case '_company':
+                $class_obj = $this->_company = $this->_company ?? new HuobanCompany($this);
+                break;
+            case '_bi':
+                $class_obj = $this->_bi = $this->_bi ?? new HuobanBi($this);
+                break;
+            case '_biFile':
+                $class_obj = $this->_biFile = $this->_biFile ?? new HuobanBiFile($this);
+                break;
+            case '_biTable':
+                $class_obj = $this->_biTable = $this->_biTable ?? new HuobanBiTable($this);
+                break;
+
             default:
                 break;
         }
