@@ -20,11 +20,11 @@ class HuobanUser
      */
     public function getRequest()
     {
-        return $this->_huoban->getRequest('POST', "/user");
+        return $this->_huoban->getRequest('GET', "/user");
     }
     public function get()
     {
-        return $this->_huoban->execute('POST', "/user");
+        return $this->_huoban->execute('GET', "/user");
     }
 
     public function findRequest($body = [])
