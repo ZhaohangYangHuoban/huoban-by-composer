@@ -111,6 +111,7 @@ class Huoban
         $url     = $options['version'] ?? '/v2' . $url;
         $body    = json_encode($body);
         $headers = $this->defaultHeader($options);
+
         return new Request($method, $url, $headers, $body);
     }
     /**
@@ -124,9 +125,16 @@ class Huoban
 
         $default_headers = [
             'Content-Type'                   => 'application/json',
-            'X-Huoban-Ticket'                => $this->config['ticket'] ?? $this->_ticket->getTicket($this->config),
             'X-Huoban-Return-Alias-Space-Id' => $this->config['space_id'] ?? '',
         ];
+
+        if ('user' == $this->config['app_type']) {
+
+            $default_headers['authorization'] = $this->config['token'] ?? $this->_token->getUserToken($this->config['username'], $this->config['password'], $options);
+        } else {
+            $default_headers['X-Huoban-Ticket'] = $this->config['ticket'] ?? $this->_ticket->getTicket($this->config);
+        }
+
         $headers = isset($options['headers']) ? $options['headers'] : [];
 
         return $headers + $default_headers;
@@ -266,6 +274,8 @@ class Huoban
      */
     public function __get($class_name)
     {
+        $class_obj = null;
+
         switch ($class_name) {
             case '_ticket':
                 $class_obj = $this->_ticket = $this->_ticket ?? new HuobanTicket($this);
@@ -321,6 +331,7 @@ class Huoban
             default:
                 break;
         }
+
         return $class_obj;
     }
 }
