@@ -3,9 +3,11 @@
 namespace Huoban\Models;
 
 use Huoban\Huoban;
+use Huoban\Models\Package\Table;
 
 class HuobanTable
 {
+    use Table;
 
     public $_huoban;
 
