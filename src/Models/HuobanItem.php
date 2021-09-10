@@ -19,22 +19,34 @@ class HuobanItem
     }
     public function findRequest($table, $body = [], $options = [])
     {
+        $this->getHeadersOptionOnlyItemsFields($options);
+        $body['limit'] = $body['limit'] ?? 500;
+
         return $this->_huoban->getRequest('POST', "/item/table/{$table}/find", $body, $options);
     }
     public function find($table, $body = [], $options = [])
     {
+        $this->getHeadersOptionOnlyItemsFields($options);
+        $body['limit'] = $body['limit'] ?? 500;
+
         return $this->_huoban->execute('POST', "/item/table/{$table}/find", $body, $options);
     }
 
     public function findAllRequest($table, $body = [], $options = [])
     {
-        $requests       = [];
-        $body['limit']  = 500;
+        $requests = [];
+
+        $this->getHeadersOptionOnlyFiltered($options);
+        $body['limit'] = 500;
+
         $first_response = $this->find($table, $body, $options + ['res_type' => 'response']);
         // 查询全部数据的所有请求
         for ($i = 0; $i < ceil($first_response['filtered'] / $body['limit']); $i++) {
+
+            $this->getHeadersOptionOnlyItemsFields($options);
             $body['offset'] = $body['limit'] * $i;
-            $requests[]     = $this->findRequest($table, $body, $options);
+
+            $requests[] = $this->findRequest($table, $body, $options);
         }
         return $requests;
 
@@ -124,6 +136,7 @@ class HuobanItem
     {
         return $this->_huoban->execute('GET', "/item/{$item_id}", $body, $options);
     }
+
     public function handleItems($items)
     {
         $format_items = [];
@@ -133,6 +146,7 @@ class HuobanItem
         }
         return $format_items;
     }
+
     public function returnDiy($item, $type = 'api')
     {
         $format_item = [];
@@ -205,5 +219,41 @@ class HuobanItem
         }
         $format_item['item_id'] = $item['item_id'];
         return $format_item;
+    }
+
+    public function getHeadersOptionOnlyItemsFields(&$options)
+    {
+        $return_fields_diy = $options['return_fields_diy'] ?? false;
+
+        if (!$return_fields_diy) {
+
+            $return_fields = [
+                [
+                    "items" => [
+                        ['fields'],
+                    ],
+                ],
+            ];
+
+            $options['headers']['x-huoban-return-fields'] = [
+                'x-huoban-return-fields' => json_encode($return_fields, JSON_UNESCAPED_UNICODE),
+            ];
+        }
+
+    }
+
+    public function getHeadersOptionOnlyFiltered(&$options)
+    {
+        $return_fields_diy = $options['return_fields_diy'] ?? false;
+
+        if (!$return_fields_diy) {
+
+            $return_fields = ["filtered"];
+
+            $options['headers']['x-huoban-return-fields'] = [
+                'x-huoban-return-fields' => json_encode($return_fields, JSON_UNESCAPED_UNICODE),
+            ];
+        }
+
     }
 }
