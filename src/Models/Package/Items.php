@@ -1,4 +1,13 @@
 <?php
+/*
+ * @Author: SanQian
+ * @Date: 2021-08-18 11:37:13
+ * @LastEditTime: 2021-09-10 15:31:52
+ * @LastEditors: SanQian
+ * @Description:
+ * @FilePath: /huoban_tools_php/src/Models/Package/Items.php
+ *
+ */
 
 namespace Huoban\Models\Package;
 
@@ -17,6 +26,20 @@ trait Items
     public function findFormatItems($table, $body = [], $options = [])
     {
         $response          = $this->find($table, $body, $options);
+        $response['items'] = $this->handleItems($response['items']);
+        return isset($options['all_fields']) ? $response : $response['items'];
+    }
+
+    /**
+     * 根据筛选器集合，返回对应格式化数据集合(全量)
+     *
+     * @param [type] $table 表格：id/别名
+     * @param [array] $body
+     * @return array
+     */
+    public function findAllFormatItems($table, $body = [], $options = [])
+    {
+        $response          = $this->findAll($table, $body, $options);
         $response['items'] = $this->handleItems($response['items']);
         return isset($options['all_fields']) ? $response : $response['items'];
     }

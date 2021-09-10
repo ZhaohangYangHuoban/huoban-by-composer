@@ -28,8 +28,8 @@ class HuobanItem
 
     public function findAllRequest($table, $body = [], $options = [])
     {
-        $requests = [];
-
+        $requests       = [];
+        $body['limit']  = 500;
         $first_response = $this->find($table, $body, $options + ['res_type' => 'response']);
         // 查询全部数据的所有请求
         for ($i = 0; $i < ceil($first_response['filtered'] / $body['limit']); $i++) {
@@ -133,72 +133,74 @@ class HuobanItem
         }
         return $format_items;
     }
-    public function returnDiy($item)
+    public function returnDiy($item, $type = 'api')
     {
         $format_item = [];
         foreach ($item['fields'] as $field) {
+            if ($field) {
 
-            $field_key = $field['alias'] ?: (string) $field['field_id'];
-            $field_key = str_replace('.', '-', $field_key);
+                $field_key = $field['alias'] ?: (string) $field['field_id'];
+                $field_key = 'api' == $type ? $field_key : str_replace('.', '-', $field_key);
 
-            switch ($field['type']) {
-                case 'number':
-                case 'text':
-                case 'calculation':
-                case 'date':
-                    $format_item[$field_key] = $field['values'][0]['value'];
-                    break;
-                case 'user':
-                    $format_item[$field_key]          = $field['values'][0]['name'];
-                    $format_item[$field_key . '_uid'] = $field['values'][0]['user_id'];
-                    break;
-                case 'relation':
-                    $ids    = [];
-                    $titles = [];
-                    foreach ($field['values'] as $value) {
-                        $ids[]    = $value['item_id'];
-                        $titles[] = $value['title'];
-                    }
-                    $format_item[$field_key]             = implode(',', $titles);
-                    $format_item[$field_key . '_ids']    = $ids;
-                    $format_item[$field_key . '_titles'] = $titles;
-                    break;
-                case 'category':
-                    $ids   = [];
-                    $names = [];
-                    foreach ($field['values'] as $value) {
-                        $ids[]   = $value['id'];
-                        $names[] = $value['name'];
-                    }
-                    $format_item[$field_key]            = implode(',', $names);
-                    $format_item[$field_key . '_ids']   = $ids;
-                    $format_item[$field_key . '_names'] = $names;
-                    break;
-                case 'image':
-                    $sources = [];
-                    foreach ($field['values'] as $value) {
-                        $sources[] = $value['link']['source'];
-                    }
-                    $format_item[$field_key]                 = implode(';', $sources);
-                    $format_item[$field_key . '_linksource'] = $sources;
+                switch ($field['type']) {
+                    case 'number':
+                    case 'text':
+                    case 'calculation':
+                    case 'date':
+                        $format_item[$field_key] = $field['values'][0]['value'];
+                        break;
+                    case 'user':
+                        $format_item[$field_key]          = $field['values'][0]['name'];
+                        $format_item[$field_key . '_uid'] = $field['values'][0]['user_id'];
+                        break;
+                    case 'relation':
+                        $ids    = [];
+                        $titles = [];
+                        foreach ($field['values'] as $value) {
+                            $ids[]    = $value['item_id'];
+                            $titles[] = $value['title'];
+                        }
+                        $format_item[$field_key]             = implode(',', $titles);
+                        $format_item[$field_key . '_ids']    = $ids;
+                        $format_item[$field_key . '_titles'] = $titles;
+                        break;
+                    case 'category':
+                        $ids   = [];
+                        $names = [];
+                        foreach ($field['values'] as $value) {
+                            $ids[]   = $value['id'];
+                            $names[] = $value['name'];
+                        }
+                        $format_item[$field_key]            = implode(',', $names);
+                        $format_item[$field_key . '_ids']   = $ids;
+                        $format_item[$field_key . '_names'] = $names;
+                        break;
+                    case 'image':
+                        $sources = [];
+                        foreach ($field['values'] as $value) {
+                            $sources[] = $value['link']['source'];
+                        }
+                        $format_item[$field_key]                 = implode(';', $sources);
+                        $format_item[$field_key . '_linksource'] = $sources;
 
-                    $names   = [];
-                    $fileids = [];
-                    foreach ($field['values'] as $value) {
-                        $names[]   = $value['name'];
-                        $fileids[] = $value['file_id'];
-                    }
-                    $format_item[$field_key . '_file_ids'] = $fileids;
-                    $format_item[$field_key . '_names']    = $names;
-                    break;
-                case 'signature':
-                    $user                              = $field['values'][0]['user'];
-                    $file                              = $field['values'][0]['file'];
-                    $format_item[$field_key]           = $file['link']['source'];
-                    $format_item[$field_key . '_user'] = $user;
-                    break;
-                default:
-                    break;
+                        $names   = [];
+                        $fileids = [];
+                        foreach ($field['values'] as $value) {
+                            $names[]   = $value['name'];
+                            $fileids[] = $value['file_id'];
+                        }
+                        $format_item[$field_key . '_file_ids'] = $fileids;
+                        $format_item[$field_key . '_names']    = $names;
+                        break;
+                    case 'signature':
+                        $user                              = $field['values'][0]['user'];
+                        $file                              = $field['values'][0]['file'];
+                        $format_item[$field_key]           = $file['link']['source'];
+                        $format_item[$field_key . '_user'] = $user;
+                        break;
+                    default:
+                        break;
+                }
             }
         }
         $format_item['item_id'] = $item['item_id'];
