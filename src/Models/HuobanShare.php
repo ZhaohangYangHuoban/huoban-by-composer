@@ -1,4 +1,13 @@
 <?php
+/*
+ * @Author: SanQian
+ * @Date: 2021-08-18 11:37:13
+ * @LastEditTime: 2021-09-13 14:38:01
+ * @LastEditors: SanQian
+ * @Description:
+ * @FilePath: /huoban_tools_php/src/Models/HuobanShare.php
+ *
+ */
 
 namespace Huoban\Models;
 
@@ -14,6 +23,16 @@ class HuobanShare
     }
     public function itemCreate($item_id, $body = [], $options = [])
     {
+        // // 创建分享
+        // $body = [
+        //     'display_field_ids' => $display_field_ids,
+        //     'update_field_ids'  => [],
+        //     'expired_on'        => '',
+        //     'item_id'           => $item_id,
+        //     'status'            => "enable",
+        //     'permission'        => "view",
+        // ];
+
         return $this->_huoban->execute('POST', "/item_share/item/{$item_id}", $body, $options);
     }
 
