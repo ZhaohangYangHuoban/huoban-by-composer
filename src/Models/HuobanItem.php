@@ -24,6 +24,7 @@ class HuobanItem
 
         return $this->_huoban->getRequest('POST', "/item/table/{$table}/find", $body, $options);
     }
+
     public function find($table, $body = [], $options = [])
     {
         $this->getHeadersOptionOnlyItemsFields($options);
@@ -32,16 +33,32 @@ class HuobanItem
         return $this->_huoban->execute('POST', "/item/table/{$table}/find", $body, $options);
     }
 
+    public function getFiltered($table, $body = [], $options = [])
+    {
+        $this->getHeadersOptionOnlyFiltered($options, false);
+        $body['limit'] = 1;
+        $response      = $this->find($table, $body, $options);
+
+        return $response['filtered'];
+    }
+
+    public function getTotal($table, $body = [], $options = [])
+    {
+        $this->getHeadersOptionOnlyTotal($options, false);
+        $body['limit'] = 1;
+        $response      = $this->find($table, $body, $options);
+
+        return $response['total'];
+    }
+
     public function findAllRequest($table, $body = [], $options = [])
     {
-        $requests = [];
-
-        $this->getHeadersOptionOnlyFiltered($options);
+        $requests      = [];
+        $filtered      = $this->getFiltered($table, $body, $options);
         $body['limit'] = 500;
 
-        $first_response = $this->find($table, $body, $options + ['res_type' => 'response']);
         // 查询全部数据的所有请求
-        for ($i = 0; $i < ceil($first_response['filtered'] / $body['limit']); $i++) {
+        for ($i = 0; $i < ceil($filtered / $body['limit']); $i++) {
 
             $this->getHeadersOptionOnlyItemsFields($options);
             $body['offset'] = $body['limit'] * $i;
@@ -58,20 +75,17 @@ class HuobanItem
         // 返回结果集,key为item_id
         $responses = $this->_huoban->requestJsonPool($requests);
 
-        $total    = null;
-        $filtered = null;
-        $items    = (function () use ($responses, &$filtered, &$total) {
-            $items = [];
-            foreach ($responses['success_data'] as $success_response) {
-                $total    = $total ?: $success_response['response']['total'];
-                $filtered = $filtered ?: $success_response['response']['filtered'];
-
-                $items = $items + array_combine(array_column($success_response['response']['items'], 'item_id'), $success_response['response']['items']);
+        $return_data = [];
+        foreach ($responses['success_data'] as $success_response) {
+            if (!$return_data) {
+                $return_data = $success_response['response'];
+            } else {
+                $return_data['items'] = $return_data['items'] + array_combine(array_column($success_response['response']['items'], 'item_id'), $success_response['response']['items']);
             }
-            return $items;
-        })();
 
-        return ['items' => $items, 'total' => $total, 'filtered' => $filtered];
+        }
+
+        return $return_data;
     }
 
     public function updateRequest($item_id, $body = [], $options = [])
@@ -221,39 +235,46 @@ class HuobanItem
         return $format_item;
     }
 
-    public function getHeadersOptionOnlyItemsFields(&$options)
+    public function getHeadersOptionOnlyItemsFields(&$options, $pre_judge = true)
     {
-        $return_fields_diy = $options['return_fields_diy'] ?? false;
+        if ($pre_judge && isset($options['headers']['x-huoban-return-fields'])) {
+            return true;
+        }
 
-        if (!$return_fields_diy) {
-
-            $return_fields = [
-                [
-                    "items" => [
-                        ['fields'],
-                    ],
+        $options['headers']['x-huoban-return-fields'] = json_encode([
+            [
+                "items" => [
+                    ['item_id', 'fields'],
                 ],
-            ];
-
-            $options['headers']['x-huoban-return-fields'] = [
-                'x-huoban-return-fields' => json_encode($return_fields, JSON_UNESCAPED_UNICODE),
-            ];
-        }
-
+            ],
+        ], JSON_UNESCAPED_UNICODE);
     }
 
-    public function getHeadersOptionOnlyFiltered(&$options)
+    public function getHeadersOptionOnlyFiltered(&$options, $pre_judge = true)
     {
-        $return_fields_diy = $options['return_fields_diy'] ?? false;
-
-        if (!$return_fields_diy) {
-
-            $return_fields = ["filtered"];
-
-            $options['headers']['x-huoban-return-fields'] = [
-                'x-huoban-return-fields' => json_encode($return_fields, JSON_UNESCAPED_UNICODE),
-            ];
+        if ($pre_judge && isset($options['headers']['x-huoban-return-fields'])) {
+            return true;
         }
 
+        $options['headers']['x-huoban-return-fields'] = json_encode(["filtered"], JSON_UNESCAPED_UNICODE);
     }
+
+    public function getHeadersOptionOnlyTotal(&$options, $pre_judge = true)
+    {
+        if ($pre_judge && isset($options['headers']['x-huoban-return-fields'])) {
+            return true;
+        }
+
+        $options['headers']['x-huoban-return-fields'] = json_encode(["total"], JSON_UNESCAPED_UNICODE);
+    }
+
+    public function getHeadersOptionOnlyFilteredAndTotal(&$options, $pre_judge = true)
+    {
+        if ($pre_judge && isset($options['headers']['x-huoban-return-fields'])) {
+            return true;
+        }
+
+        $options['headers']['x-huoban-return-fields'] = json_encode(["filtered", "total"], JSON_UNESCAPED_UNICODE);
+    }
+
 }
