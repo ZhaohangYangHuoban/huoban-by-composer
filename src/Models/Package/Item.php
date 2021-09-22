@@ -15,7 +15,7 @@ trait Item
      */
     public function getFormatItem($item_id)
     {
-        $item = $this->getItem($item_id);
+        $item = $this->get($item_id);
         return $this->returnDiy($item);
     }
     /**
