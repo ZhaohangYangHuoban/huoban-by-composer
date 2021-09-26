@@ -16,6 +16,7 @@ class HuobanBiTable
     {
         $this->_huoban = $huoban;
     }
+
     /**
      * 创建数据仓库表
      *
@@ -30,6 +31,7 @@ class HuobanBiTable
         $response                  = $this->_huoban->execute('POST', "/sync_table/space/{$space_id}", $body, $options);
         return $response;
     }
+
     /**
      * 更新数据仓库表
      *
@@ -44,6 +46,7 @@ class HuobanBiTable
         $response                  = $this->_huoban->execute('PUT', "/sync_table/space/{$space_id}", $body, $options);
         return $response;
     }
+
     /**
      * 获取数仓库表
      *
@@ -58,6 +61,7 @@ class HuobanBiTable
         $response                  = $this->_huoban->execute('GET', "/table/{$table_id}", $body, $options);
         return $response;
     }
+
     /**
      * 删除数据仓库表
      *
@@ -75,6 +79,56 @@ class HuobanBiTable
     }
 
     /**
+     * 应用同步注册，只需要执行一次
+     *
+     * @return void
+     */
+    public function biRegister($table_alias)
+    {
+        // 注册同步机制
+        $body = [
+            'space_id'    => $this->_huoban->config['space_id'],
+            'table_alias' => $table_alias,
+            'safeguard'   => [
+                'type'  => 'create_time',
+                'cycle' => 30,
+            ],
+        ];
+        $response = $this->_huoban->_bi->register($body);
+        return $response;
+    }
+
+    /**
+     * 立即执行同步数据动作
+     *
+     * @param [type] $date_time
+     * @return void
+     */
+    public function uploadExecuteImmediately($date_time)
+    {
+        $response = [];
+
+        $body = [
+            'type'         => 'sync',
+            'space_id'     => $this->_huoban->config['space_id'],
+            'sync_version' => $date_time,
+        ];
+
+        $response[] = static::$_huoban->_bi->sync($body);
+
+        $body = [
+            'type'         => 'calculate',
+            'space_id'     => $this->_huoban->config['space_id'],
+            'sync_version' => $date_time,
+        ];
+
+        $response[] = static::$_huoban->_bi->sync($body);
+
+        return $response;
+
+    }
+
+    /**
      * 即刻同步
      *
      * @param int $space_id
@@ -88,4 +142,5 @@ class HuobanBiTable
         $response                  = $this->_huoban->execute('POST', "/table/space/{$space_id}/sync_from", $body, $options);
         return $response;
     }
+
 }

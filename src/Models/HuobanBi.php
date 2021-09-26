@@ -78,5 +78,4 @@ class HuobanBi
 
         return $response;
     }
-
 }
