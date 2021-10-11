@@ -17,6 +17,7 @@ class HuobanItem
     {
         $this->_huoban = $huoban;
     }
+
     public function findRequest($table, $body = [], $options = [])
     {
         $this->getHeadersOptionOnlyItemsFields($options);
@@ -24,7 +25,6 @@ class HuobanItem
 
         return $this->_huoban->getRequest('POST', "/item/table/{$table}/find", $body, $options);
     }
-
     public function find($table, $body = [], $options = [])
     {
         $this->getHeadersOptionOnlyItemsFields($options);
@@ -235,6 +235,13 @@ class HuobanItem
         return $format_item;
     }
 
+    /**
+     * 只返回 'item_id', 'fields' 的设定
+     *
+     * @param array $options
+     * @param boolean $pre_judge
+     * @return void
+     */
     public function getHeadersOptionOnlyItemsFields(&$options, $pre_judge = true)
     {
         if ($pre_judge && isset($options['headers']['x-huoban-return-fields'])) {
@@ -250,6 +257,13 @@ class HuobanItem
         ], JSON_UNESCAPED_UNICODE);
     }
 
+    /**
+     * 只返回 'filtered' 的设定
+     *
+     * @param [type] $options
+     * @param boolean $pre_judge
+     * @return void
+     */
     public function getHeadersOptionOnlyFiltered(&$options, $pre_judge = true)
     {
         if ($pre_judge && isset($options['headers']['x-huoban-return-fields'])) {
@@ -259,6 +273,13 @@ class HuobanItem
         $options['headers']['x-huoban-return-fields'] = json_encode(["filtered"], JSON_UNESCAPED_UNICODE);
     }
 
+    /**
+     * 只返回 'total' 的设定
+     *
+     * @param [type] $options
+     * @param boolean $pre_judge
+     * @return void
+     */
     public function getHeadersOptionOnlyTotal(&$options, $pre_judge = true)
     {
         if ($pre_judge && isset($options['headers']['x-huoban-return-fields'])) {
@@ -268,6 +289,13 @@ class HuobanItem
         $options['headers']['x-huoban-return-fields'] = json_encode(["total"], JSON_UNESCAPED_UNICODE);
     }
 
+    /**
+     * 只返回 'total','filtered' 的设定
+     *
+     * @param [type] $options
+     * @param boolean $pre_judge
+     * @return void
+     */
     public function getHeadersOptionOnlyFilteredAndTotal(&$options, $pre_judge = true)
     {
         if ($pre_judge && isset($options['headers']['x-huoban-return-fields'])) {
