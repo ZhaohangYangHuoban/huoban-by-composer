@@ -42,49 +42,7 @@ class Filter
      * @param array $conditions
      * @return object
      */
-    public function setWhere(array $conditions, ?string $sign = 'and'): object
-    {
-        ('and' == $sign) ? $this->setWhereAnd($conditions) : $this->setWhereOr($conditions);
-        return $this;
-    }
-
-    public function setWhereOr(array $conditions): void
-    {
-
-        // 如果之前没有条件结构，则新创建一个
-        !isset($this->body['where']['and']['or']) && $this->body['where'] = ['and' => ['or' => []]];
-
-        foreach ($conditions as $condition) {
-            foreach ($condition as $field => $query) {
-
-                $this->body['where']['and'][] = [
-                    'field' => $field,
-                    'query' => $query,
-                ];
-            }
-        }
-
-        // if (isset($query['or'])) {
-
-        //     $already_or_key = $this->getWhereConditionsRepeatKey($field);
-        //     if ($already_or_key) {
-
-        //         $already_or_query                            = $this->body['where']['and'][$already_or_key]['query'];
-        //         $this->body['where']['and'][$already_or_key] = [
-        //             'field' => $field,
-        //             'query' => $this->getWhereOrQuery($already_or_query, $query),
-        //         ];
-        //     } else {
-        //         $this->body['where']['and'][] = [
-        //             'field' => $field,
-        //             'query' => ['or' => [$query['or']]],
-        //         ];
-        //     }
-
-        // } else {
-    }
-
-    public function setWhereAnd(array $conditions): void
+    public function setWhere(array $conditions): object
     {
         // 如果之前没有条件结构，则新创建一个
         !isset($this->body['where']['and']) && $this->body['where'] = ['and' => []];
@@ -98,14 +56,7 @@ class Filter
                 ];
             }
         }
-    }
-
-    public function setWhereAndOr($field, $query): void
-    {
-        $this->body['where']['and'][] = [
-            'field' => $field,
-            'query' => $query,
-        ];
+        return $this;
     }
 
     /**
@@ -150,88 +101,88 @@ class Filter
      */
     public function inItemIds($item_ids): object
     {
-        $conditions = ['item_id' => ['in' => $item_ids]];
-        $this->setWhere($conditions);
+        $condition = ['item_id' => ['in' => $item_ids]];
+        $this->setWhere([$condition]);
 
         return $this;
     }
 
     public function eq($field, $value): object
     {
-        $conditions = [$field => ['eq' => $value]];
-        $this->setWhere($conditions);
+        $condition = [$field => ['eq' => $value]];
+        $this->setWhere([$condition]);
 
         return $this;
     } //等于
 
     public function ne($field, $value): object
     {
-        $conditions = [$field => ['ne' => $value]];
-        $this->setWhere($conditions);
+        $condition = [$field => ['ne' => $value]];
+        $this->setWhere([$condition]);
 
         return $this;
     } //不等于
 
     public function gt($field, $value): object
     {
-        $conditions = [$field => ['gt' => $value]];
-        $this->setWhere($conditions);
+        $condition = [$field => ['gt' => $value]];
+        $this->setWhere([$condition]);
 
         return $this;
     } //大于
 
     public function gte($field, $value): object
     {
-        $conditions = [$field => ['gte' => $value]];
-        $this->setWhere($conditions);
+        $condition = [$field => ['gte' => $value]];
+        $this->setWhere([$condition]);
 
         return $this;
     } //大等于
 
     public function lt($field, $value): object
     {
-        $conditions = [$field => ['lt' => $value]];
-        $this->setWhere($conditions);
+        $condition = [$field => ['lt' => $value]];
+        $this->setWhere([$condition]);
 
         return $this;
     } //小于
 
     public function lte($field, $value): object
     {
-        $conditions = [$field => ['lte' => $value]];
-        $this->setWhere($conditions);
+        $condition = [$field => ['lte' => $value]];
+        $this->setWhere([$condition]);
 
         return $this;
     } //小等于
 
     public function in($field, array $value): object
     {
-        $conditions = [$field => ['in' => $value]];
-        $this->setWhere($conditions);
+        $condition = [$field => ['in' => $value]];
+        $this->setWhere([$condition]);
 
         return $this;
     } //包含
 
     public function nin($field, array $value): object
     {
-        $conditions = [$field => ['nin' => $value]];
-        $this->setWhere($conditions);
+        $condition = [$field => ['nin' => $value]];
+        $this->setWhere([$condition]);
 
         return $this;
     } //不包含
 
     public function em($field, bool $value): object
     {
-        $conditions = [$field => ['em' => $value]];
-        $this->setWhere($conditions);
+        $condition = [$field => ['em' => $value]];
+        $this->setWhere([$condition]);
 
         return $this;
     } //是否为空
 
     public function addWhereOr($field, $condition): object
     {
-        $conditions = [$field => ['or' => $condition]];
-        $this->setWhere($conditions);
+        $condition = [$field => [$condition]];
+        $this->setWhere([$condition]);
 
         return $this;
     } //多个条件并集
