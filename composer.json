@@ -1,8 +1,5 @@
 {
   "name": "zhaohangyang/huoban_tools_php",
-  "require": {
-    "guzzlehttp/guzzle": "~6.0"
-  },
   "repositories": {
     "packagist": {
       "type": "composer",
@@ -15,5 +12,8 @@
       "Huoban\\Models\\": "src/Models",
       "Huoban\\Helpers\\": "src/Helpers"
     }
+  },
+  "require": {
+    "guzzlehttp/guzzle": "^7.3"
   }
 }
