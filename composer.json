@@ -14,6 +14,7 @@
     }
   },
   "require": {
-    "guzzlehttp/guzzle": "^7.3"
+    "guzzlehttp/guzzle": "^7.3",
+    "huoban/api-sdk-php": "^2.1"
   }
 }
