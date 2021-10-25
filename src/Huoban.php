@@ -10,7 +10,6 @@ namespace Huoban;
 use Exception;
 use Huoban\Contracts\Factory;
 use Huoban\Request\GuzzleRequest;
-use Psr\SimpleCache\InvalidArgumentException;
 
 class Huoban implements Factory
 {

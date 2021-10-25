@@ -2,10 +2,10 @@
 /*
  * @Author: SanQian
  * @Date: 2021-08-18 11:37:13
- * @LastEditTime: 2021-10-25 14:24:46
+ * @LastEditTime: 2021-10-25 16:39:40
  * @LastEditors: SanQian
  * @Description:
- * @FilePath: /huoban_leiyu_php/src/Huoban/Models/HuobanTicket.php
+ * @FilePath: /huoban_tools_php/src/Models/HuobanTicket.php
  *
  */
 
@@ -14,7 +14,6 @@ namespace Huoban\Models;
 use Exception;
 use GuzzleHttp\Psr7\Request;
 use Huoban\Contracts\RequestInterface;
-use Psr\SimpleCache\InvalidArgumentException;
 
 class HuobanTicket
 {

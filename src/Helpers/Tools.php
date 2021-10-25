@@ -47,15 +47,10 @@ class Tools
     public static function getTablesForSpaceId(Huoban $huoban_obj, ?int $expired): array
     {
         $expired = $expired ?: 1209600;
-
-        $space = $huoban_obj->_cache->remember($huoban_obj->config['name'] . 'space', $expired, function () use ($huoban_obj) {
-            return $huoban_obj->_space->getSpace($huoban_obj->config['space_id']);
-        });
+        $space   = $huoban_obj->_space->getSpace($huoban_obj->config['space_id']);
 
         foreach ($space['table_ids'] as $table_id) {
-            $tables[] = $huoban_obj->_cache->remember($huoban_obj->config['name'] . $table_id, $expired, function () use ($huoban_obj, $table_id) {
-                return $huoban_obj->_table->get($table_id);
-            });
+            $tables[] = $huoban_obj->_table->get($table_id);
         }
 
         return $tables;
