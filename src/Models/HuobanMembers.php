@@ -2,16 +2,10 @@
 
 namespace Huoban\Models;
 
-use Huoban\Contracts\RequestInterface;
+use Huoban\HuobanBasic;
 
-class HuobanMembers
+class HuobanMembers extends HuobanBasic
 {
-    public $request;
-
-    public function __construct(RequestInterface $request)
-    {
-        $this->request = $request;
-    }
 
     /**
      * 获取工作区成员信息

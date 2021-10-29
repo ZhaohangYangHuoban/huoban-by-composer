@@ -2,16 +2,10 @@
 
 namespace Huoban\Models;
 
-use Huoban\Contracts\RequestInterface;
+use Huoban\HuobanBasic;
 
-class HuobanComment
+class HuobanComment extends HuobanBasic
 {
-    public $request;
-
-    public function __construct(RequestInterface $request)
-    {
-        $this->request = $request;
-    }
 
     public function createRequest($item_id, $body = [], $options = [])
     {

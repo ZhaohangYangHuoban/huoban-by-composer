@@ -2,7 +2,7 @@
 /*
  * @Author: SanQian
  * @Date: 2021-08-18 11:37:13
- * @LastEditTime: 2021-10-25 16:39:40
+ * @LastEditTime: 2021-10-29 10:47:37
  * @LastEditors: SanQian
  * @Description:
  * @FilePath: /huoban_tools_php/src/Models/HuobanTicket.php
@@ -13,19 +13,11 @@ namespace Huoban\Models;
 
 use Exception;
 use GuzzleHttp\Psr7\Request;
-use Huoban\Contracts\RequestInterface;
+use Huoban\HuobanBasic;
 
-class HuobanTicket
+class HuobanTicket extends HuobanBasic
 {
-    public $request;
-    /**
-     * @throws \Exception
-     */
-    public function __construct(RequestInterface $request)
-    {
-        $this->request = $request;
-    }
-
+    public $expired = 1209600;
     /**
      * 获取企业授权的请求
      *
@@ -56,7 +48,7 @@ class HuobanTicket
      */
     public function getForEnterprise($application_id, $application_secret, array $options = []): string
     {
-        $expired  = $options['expired'] ?? 1209600;
+        $expired  = $options['expired'] ?? $this->expired;
         $request  = $this->getForEnterpriseRequest($application_id, $application_secret, $expired);
         $response = $this->request->requestJsonSync($request);
 
@@ -87,7 +79,7 @@ class HuobanTicket
      */
     protected function getForShare($share_id, $secret, $options)
     {
-        $expired  = $options['expired'] ?? 1209600;
+        $expired  = $options['expired'] ?? $this->expired;
         $request  = $this->getForShareRequest($share_id, $secret, $expired);
         $response = $this->request->requestJsonSync($request);
 
@@ -97,17 +89,17 @@ class HuobanTicket
     /**
      * @throws InvalidArgumentException
      */
-    public function getTicket($config, $options = [])
+    public function getTicket($options = [])
     {
-        $type = $config['app_type'];
+        $type = $this->config['app_type'];
 
         switch ($type) {
             case 'enterprise':
-                return $this->getForEnterprise($config['application_id'], $config['application_secret'], $options);
+                return $this->getForEnterprise($this->config['application_id'], $this->config['application_secret'], $options);
             case 'share':
-                return $this->getForShare($config['share_id'], $config['secret'], $options);
+                return $this->getForShare($this->config['share_id'], $this->config['secret'], $options);
             case 'table':
-                return $config['ticket'];
+                return $this->config['ticket'];
             default:
                 return '';
         }

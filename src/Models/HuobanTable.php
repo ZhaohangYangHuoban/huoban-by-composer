@@ -2,19 +2,13 @@
 
 namespace Huoban\Models;
 
-use Huoban\Contracts\RequestInterface;
+use Huoban\HuobanBasic;
 use Huoban\Models\Package\Table;
 
-class HuobanTable
+class HuobanTable extends HuobanBasic
 {
     use Table;
 
-    public $request;
-
-    public function __construct(RequestInterface $request)
-    {
-        $this->request = $request;
-    }
     /**
      * 获取表结构
      *

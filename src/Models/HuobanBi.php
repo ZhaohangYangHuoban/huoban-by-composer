@@ -7,29 +7,13 @@
 
 namespace Huoban\Models;
 
-use Huoban\Contracts\RequestInterface;
+use Huoban\HuobanBasic;
 
 /**
  * 伙伴BI基础类
  */
-class HuobanBi
+class HuobanBi extends HuobanBasic
 {
-    /**
-     * 伙伴实例
-     *
-     * @var [\Huoban\Huoban]
-     */
-    public $request;
-
-    /**
-     * 初始化 $_huoban
-     *
-     * @param Huoban $huoban
-     */
-    public function __construct(RequestInterface $request)
-    {
-        $this->request = $request;
-    }
     /**
      * 注册应用同步信息
      *

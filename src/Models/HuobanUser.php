@@ -2,16 +2,10 @@
 
 namespace Huoban\Models;
 
-use Huoban\Contracts\RequestInterface;
+use Huoban\HuobanBasic;
 
-class HuobanUser
+class HuobanUser extends HuobanBasic
 {
-    public $request;
-
-    public function __construct(RequestInterface $request)
-    {
-        $this->request = $request;
-    }
 
     /**
      * 获取用户基础信息

@@ -2,21 +2,14 @@
 
 namespace Huoban\Models;
 
-use Huoban\Contracts\RequestInterface;
+use Huoban\HuobanBasic;
 use Huoban\Models\Package\Item;
 use Huoban\Models\Package\Items;
 
-class HuobanItem
+class HuobanItem extends HuobanBasic
 {
     use Item;
     use Items;
-
-    public $request;
-
-    public function __construct(RequestInterface $request)
-    {
-        $this->request = $request;
-    }
 
     public function findRequest($table, $body = [], $options = [])
     {

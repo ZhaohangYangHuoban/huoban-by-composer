@@ -2,12 +2,12 @@
 
 namespace Huoban\Models;
 
-use Huoban\Contracts\RequestInterface;
+use Huoban\HuobanBasic;
 
 /**
  * BI 文件上传
  */
-class HuobanBiFile
+class HuobanBiFile extends HuobanBasic
 {
     /**
      * 请求类型
@@ -16,12 +16,6 @@ class HuobanBiFile
      */
     public $interfaceType = 'bi';
 
-    public $request;
-
-    public function __construct(RequestInterface $request)
-    {
-        $this->request = $request;
-    }
     /**
      * 上传数据仓库数据文件（用于创建数据仓库表数据）
      *

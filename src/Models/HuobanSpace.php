@@ -2,16 +2,11 @@
 
 namespace Huoban\Models;
 
-use Huoban\Contracts\RequestInterface;
+use Huoban\HuobanBasic;
 
-class HuobanSpace
+class HuobanSpace extends HuobanBasic
 {
-    public $request;
 
-    public function __construct(RequestInterface $request)
-    {
-        $this->request = $request;
-    }
     public function getSpaceRequest($space_id, $body = [], $options = [])
     {
         return $this->request->getRequest('GET', "/space/{$space_id}", $body, $options);

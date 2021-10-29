@@ -2,7 +2,7 @@
 /*
  * @Author: SanQian
  * @Date: 2021-08-18 11:37:13
- * @LastEditTime: 2021-09-13 14:38:01
+ * @LastEditTime: 2021-10-29 10:39:01
  * @LastEditors: SanQian
  * @Description:
  * @FilePath: /huoban_tools_php/src/Models/HuobanShare.php
@@ -11,16 +11,11 @@
 
 namespace Huoban\Models;
 
-use Huoban\Contracts\RequestInterface;
+use Huoban\HuobanBasic;
 
-class HuobanShare
+class HuobanShare extends HuobanBasic
 {
-    public $request;
 
-    public function __construct(RequestInterface $request)
-    {
-        $this->request = $request;
-    }
     public function itemCreate($item_id, $body = [], $options = [])
     {
         // // 创建分享

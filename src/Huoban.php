@@ -14,6 +14,7 @@ use Huoban\Request\GuzzleRequest;
 class Huoban implements Factory
 {
 
+    public $request;
     protected $models = [];
 
     protected $config;
@@ -34,13 +35,21 @@ class Huoban implements Factory
                 'bi'     => 'https://bi.huoban.com',
             ],
         ];
-        $this->config['ticket'] ?? $this->setTicket();
+        $this->setRequest();
+        $this->setTicket();
     }
 
-    public function setTicket($ticket = null)
+    public function setRequest()
     {
-        $this->config['ticket'] = $ticket ?: $this->make('Ticket')->getTicket();
-        return $this->config['ticket'];
+        $this->request = new GuzzleRequest($this->config);
+    }
+
+    public function setTicket()
+    {
+        $ticket                          = $this->config['ticket'] ?? $this->make('ticket')->getTicket();
+        $this->request->config['ticket'] = $this->config['ticket'] = $ticket;
+
+        return $ticket;
     }
 
     public function make($model_name)
@@ -54,10 +63,8 @@ class Huoban implements Factory
      */
     protected function resolve($model_name)
     {
-        $model   = '\\Huoban\\Models\\Huoban' . ucfirst($model_name);
-        $request = new GuzzleRequest($this->config);
-
-        return new $model($request);
+        $model = '\\Huoban\\Models\\Huoban' . ucfirst($model_name);
+        return new $model($this->request, $this->config);
     }
 
 }

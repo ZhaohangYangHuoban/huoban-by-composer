@@ -2,20 +2,15 @@
 
 namespace Huoban\Models;
 
-use Huoban\Contracts\RequestInterface;
+use Huoban\HuobanBasic;
+use Huoban\Models\HuobanBi;
 
 /**
  * BI Table类
  */
-class HuobanBiTable
+class HuobanBiTable extends HuobanBasic
 {
     public $interfaceType = 'bi';
-    public $request;
-
-    public function __construct(RequestInterface $request)
-    {
-        $this->request = $request;
-    }
 
     /**
      * 创建数据仓库表
@@ -84,7 +79,7 @@ class HuobanBiTable
      * @param [type] $date_time
      * @return void
      */
-    public function uploadExecuteImmediately($date_time)
+    public function uploadExecuteImmediately(HuobanBi $huoban_bi, $date_time)
     {
         $response = [];
 
@@ -94,7 +89,7 @@ class HuobanBiTable
             'sync_version' => $date_time,
         ];
 
-        $response[] = static::$_huoban->_bi->sync($body);
+        $response[] = $huoban_bi->sync($body);
 
         $body = [
             'type'         => 'calculate',
@@ -102,7 +97,7 @@ class HuobanBiTable
             'sync_version' => $date_time,
         ];
 
-        $response[] = static::$_huoban->_bi->sync($body);
+        $response[] = $huoban_bi->sync($body);
 
         return $response;
 

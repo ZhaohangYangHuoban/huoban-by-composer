@@ -2,17 +2,12 @@
 
 namespace Huoban\Models;
 
-use Huoban\Contracts\RequestInterface;
+use Huoban\HuobanBasic;
 
-class HuobanFile
+class HuobanFile extends HuobanBasic
 {
     public $interfaceType = 'upload';
-    public $request;
 
-    public function __construct(RequestInterface $request)
-    {
-        $this->request = $request;
-    }
     /**
      * 上传文件
      *

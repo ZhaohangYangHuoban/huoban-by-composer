@@ -2,16 +2,11 @@
 
 namespace Huoban\Models;
 
-use Huoban\Contracts\RequestInterface;
+use Huoban\HuobanBasic;
 
-class HuobanFollow
+class HuobanFollow extends HuobanBasic
 {
-    public $request;
 
-    public function __construct(RequestInterface $request)
-    {
-        $this->request = $request;
-    }
     public function create($item_id, $body = [], $options = [])
     {
         return $this->request->execute('POST', "/follow/item/{$item_id}", $body, $options);

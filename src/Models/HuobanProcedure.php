@@ -2,16 +2,10 @@
 
 namespace Huoban\Models;
 
-use Huoban\Contracts\RequestInterface;
+use Huoban\HuobanBasic;
 
-class HuobanProcedure
+class HuobanProcedure extends HuobanBasic
 {
-    public $request;
-
-    public function __construct(RequestInterface $request)
-    {
-        $this->request = $request;
-    }
 
     public function runProcedureRequest($procedure_id, $body = [], $options = [])
     {

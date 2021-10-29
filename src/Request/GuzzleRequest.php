@@ -99,6 +99,23 @@ class GuzzleRequest implements RequestInterface
     }
 
     /**
+     * 获取请求客户端
+     *
+     * @param string $interface_type
+     * @return \GuzzleHttp\Client
+     */
+    public function getHttpClient($interface_type)
+    {
+        return $this->client[$interface_type] = new Client([
+            'base_uri'    => $this->config['urls'][$interface_type],
+            'timeout'     => 600,
+            'verify'      => false,
+            'http_errors' => false,
+            'headers'     => $this->defaultHeader(),
+        ]);
+    }
+
+    /**
      * 发送请求，并返回结果
      *
      * @param \GuzzleHttp\Psr7\Request $request
@@ -151,20 +168,4 @@ class GuzzleRequest implements RequestInterface
         return ['success_data' => $success_data, 'error_data' => $error_data];
     }
 
-    /**
-     * 获取请求客户端
-     *
-     * @param string $interface_type
-     * @return \GuzzleHttp\Client
-     */
-    public function getHttpClient($interface_type)
-    {
-        return $this->client[$interface_type] = new Client([
-            'base_uri'    => $this->config['urls'][$interface_type],
-            'timeout'     => 600,
-            'verify'      => false,
-            'http_errors' => false,
-            'headers'     => $this->defaultHeader(),
-        ]);
-    }
 }

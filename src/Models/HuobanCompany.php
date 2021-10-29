@@ -2,19 +2,13 @@
 
 namespace Huoban\Models;
 
-use Huoban\Contracts\RequestInterface;
+use Huoban\HuobanBasic;
 
 /**
  * 伙伴公司接口
  */
-class HuobanCompany
+class HuobanCompany extends HuobanBasic
 {
-    public $request;
-
-    public function __construct(RequestInterface $request)
-    {
-        $this->request = $request;
-    }
     public function getMemberAllRequest($company_id = null, $body = [], $options = [])
     {
         $requests = [];

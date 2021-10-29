@@ -2,16 +2,8 @@
 
 namespace Huoban\Models;
 
-use Huoban\Contracts\RequestInterface;
-
-class HuobanNotification
+class HuobanNotification extends HuobanBasic
 {
-    public $request;
-
-    public function __construct(RequestInterface $request)
-    {
-        $this->request = $request;
-    }
 
     public function createRequest($body = [], $options = [])
     {
