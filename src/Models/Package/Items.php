@@ -2,7 +2,7 @@
 /*
  * @Author: SanQian
  * @Date: 2021-08-18 11:37:13
- * @LastEditTime: 2021-10-11 14:02:47
+ * @LastEditTime: 2021-11-02 18:28:06
  * @LastEditors: SanQian
  * @Description:
  * @FilePath: /huoban_tools_php/src/Models/Package/Items.php
@@ -26,7 +26,7 @@ trait Items
     public function findFormatItems($table, $body = [], $options = [])
     {
         $response          = $this->find($table, $body, $options);
-        $response['items'] = $this->handleItems($response['items']);
+        $response['items'] = isset($response['items']) ? $this->handleItems($response['items']) : [];
         return isset($options['all_fields']) ? $response : $response['items'];
     }
 
@@ -40,7 +40,7 @@ trait Items
     public function findAllFormatItems($table, $body = [], $options = [])
     {
         $response          = $this->findAll($table, $body, $options);
-        $response['items'] = $this->handleItems($response['items']);
+        $response['items'] = isset($response['items']) ? $this->handleItems($response['items']) : [];
         return isset($options['all_fields']) ? $response : $response['items'];
     }
 
