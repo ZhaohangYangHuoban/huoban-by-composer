@@ -67,4 +67,14 @@ class Huoban implements Factory
         return new $model($this->request, $this->config);
     }
 
+    public function setConfig($key, $val)
+    {
+        $this->config[$key] = $val;
+    }
+
+    public function getConfig($key, $val = '')
+    {
+        return $this->config[$key] ?? $val;
+    }
+
 }
