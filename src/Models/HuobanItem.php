@@ -13,22 +13,22 @@ class HuobanItem extends HuobanBasic
 
     public function findRequest($table, $body = [], $options = [])
     {
-        $this->getHeadersOptionOnlyItemsFields($options);
-        $body['limit'] = $body['limit'] ?? 500;
+        $options['headers']['x-huoban-return-fields'] ?? $options = $this->getHeadersOptionOnlyItemsFields($options);
 
+        $body['limit'] = $body['limit'] ?? 500;
         return $this->request->getRequest('POST', "/item/table/{$table}/find", $body, $options);
     }
     public function find($table, $body = [], $options = [])
     {
-        $this->getHeadersOptionOnlyItemsFields($options);
-        $body['limit'] = $body['limit'] ?? 500;
+        $options['headers']['x-huoban-return-fields'] ?? $options = $this->getHeadersOptionOnlyItemsFields($options);
 
+        $body['limit'] = $body['limit'] ?? 500;
         return $this->request->execute('POST', "/item/table/{$table}/find", $body, $options);
     }
 
     public function getFiltered($table, $body = [], $options = [])
     {
-        $this->getHeadersOptionOnlyFiltered($options, false);
+        $options       = $this->getHeadersOptionOnlyFiltered($options, false);
         $body['limit'] = 1;
         $response      = $this->find($table, $body, $options);
 
@@ -37,7 +37,7 @@ class HuobanItem extends HuobanBasic
 
     public function getTotal($table, $body = [], $options = [])
     {
-        $this->getHeadersOptionOnlyTotal($options, false);
+        $options       = $this->getHeadersOptionOnlyTotal($options, false);
         $body['limit'] = 1;
         $response      = $this->find($table, $body, $options);
 
@@ -46,17 +46,15 @@ class HuobanItem extends HuobanBasic
 
     public function findAllRequest($table, $body = [], $options = [])
     {
-        $requests      = [];
-        $filtered      = $this->getFiltered($table, $body, $options);
-        $body['limit'] = 500;
+        $requests = [];
+        $filtered = $this->getFiltered($table, $body, $options);
 
         // 查询全部数据的所有请求
+        $body['limit'] = 500;
         for ($i = 0; $i < ceil($filtered / $body['limit']); $i++) {
 
-            $this->getHeadersOptionOnlyItemsFields($options);
             $body['offset'] = $body['limit'] * $i;
-
-            $requests[] = $this->findRequest($table, $body, $options);
+            $requests[]     = $this->findRequest($table, $body, $options);
         }
         return $requests;
 
@@ -235,12 +233,8 @@ class HuobanItem extends HuobanBasic
      * @param boolean $pre_judge
      * @return void
      */
-    public function getHeadersOptionOnlyItemsFields(&$options, $pre_judge = true)
+    public function getHeadersOptionOnlyItemsFields($options, $pre_judge = true)
     {
-        if ($pre_judge && isset($options['headers']['x-huoban-return-fields'])) {
-            return true;
-        }
-
         $options['headers']['x-huoban-return-fields'] = json_encode([
             [
                 "items" => [
@@ -248,6 +242,8 @@ class HuobanItem extends HuobanBasic
                 ],
             ],
         ], JSON_UNESCAPED_UNICODE);
+
+        return $options;
     }
 
     /**
@@ -257,13 +253,10 @@ class HuobanItem extends HuobanBasic
      * @param boolean $pre_judge
      * @return void
      */
-    public function getHeadersOptionOnlyFiltered(&$options, $pre_judge = true)
+    public function getHeadersOptionOnlyFiltered($options)
     {
-        if ($pre_judge && isset($options['headers']['x-huoban-return-fields'])) {
-            return true;
-        }
-
         $options['headers']['x-huoban-return-fields'] = json_encode(["filtered"], JSON_UNESCAPED_UNICODE);
+        return $options;
     }
 
     /**
@@ -273,13 +266,10 @@ class HuobanItem extends HuobanBasic
      * @param boolean $pre_judge
      * @return void
      */
-    public function getHeadersOptionOnlyTotal(&$options, $pre_judge = true)
+    public function getHeadersOptionOnlyTotal($options)
     {
-        if ($pre_judge && isset($options['headers']['x-huoban-return-fields'])) {
-            return true;
-        }
-
         $options['headers']['x-huoban-return-fields'] = json_encode(["total"], JSON_UNESCAPED_UNICODE);
+        return $options;
     }
 
     /**
@@ -289,13 +279,10 @@ class HuobanItem extends HuobanBasic
      * @param boolean $pre_judge
      * @return void
      */
-    public function getHeadersOptionOnlyFilteredAndTotal(&$options, $pre_judge = true)
+    public function getHeadersOptionOnlyFilteredAndTotal($options)
     {
-        if ($pre_judge && isset($options['headers']['x-huoban-return-fields'])) {
-            return true;
-        }
-
         $options['headers']['x-huoban-return-fields'] = json_encode(["filtered", "total"], JSON_UNESCAPED_UNICODE);
+        return $options;
     }
 
 }

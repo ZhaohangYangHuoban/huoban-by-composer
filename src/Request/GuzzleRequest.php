@@ -95,7 +95,9 @@ class GuzzleRequest implements RequestInterface
             $default_headers['X-Huoban-Ticket'] = $this->config['ticket'];
         }
 
-        return array_merge($default_headers, $options);
+        $options_headers = $options['headers'] ?? [];
+
+        return array_merge($default_headers, $options_headers);
     }
 
     /**
