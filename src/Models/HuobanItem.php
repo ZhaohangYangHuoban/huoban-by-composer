@@ -79,6 +79,21 @@ class HuobanItem extends HuobanBasic
         return $return_data;
     }
 
+    public function statsRequest($table_id, $body = [], $options = [])
+    {
+        $options['headers']['x-huoban-return-fields'] ?? $options = $this->getHeadersOptionOnlyItemsFields($options);
+
+        $body['limit'] = $body['limit'] ?? 500;
+        return $this->request->getRequest('POST', "/item/table/{$table_id}/stats", $body, $options);
+    }
+    public function stats($table_id, $body = [], $options = [])
+    {
+        $options['headers']['x-huoban-return-fields'] ?? $options = $this->getHeadersOptionOnlyItemsFields($options);
+
+        $body['limit'] = $body['limit'] ?? 500;
+        return $this->request->execute('POST', "/item/table/{$table_id}/stats", $body, $options);
+    }
+
     public function updateRequest($item_id, $body = [], $options = [])
     {
         return $this->request->getRequest('PUT', "/item/{$item_id}", $body, $options);

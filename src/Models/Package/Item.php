@@ -18,6 +18,7 @@ trait Item
         $item = $this->get($item_id);
         return $this->returnDiy($item);
     }
+
     /**
      * 更新数据并返回格式化的数据信息
      *
@@ -30,4 +31,5 @@ trait Item
         $item = $this->updateItem($item_id, $body);
         return $this->returnDiy($item);
     }
+
 }

@@ -2,7 +2,7 @@
 /*
  * @Author: SanQian
  * @Date: 2021-08-18 11:37:13
- * @LastEditTime: 2021-11-02 18:28:06
+ * @LastEditTime: 2021-12-21 16:40:03
  * @LastEditors: SanQian
  * @Description:
  * @FilePath: /huoban_tools_php/src/Models/Package/Items.php
@@ -42,6 +42,21 @@ trait Items
         $response          = $this->findAll($table, $body, $options);
         $response['items'] = isset($response['items']) ? $this->handleItems($response['items']) : [];
         return isset($options['all_fields']) ? $response : $response['items'];
+    }
+
+    /**
+     * 根据筛选器集合，返回对应格式化数据集合
+     *
+     * @param [type] $table 表格：id/别名
+     * @param [array] $body
+     * @return array
+     */
+    public function findFormatItemsFirst($table, $body = [], $options = [])
+    {
+        $response          = $this->find($table, $body, $options);
+        $response['items'] = isset($response['items']) ? $this->handleItems($response['items']) : [];
+
+        return $response['items'] ? current($response['items']) : null;
     }
 
     /**
