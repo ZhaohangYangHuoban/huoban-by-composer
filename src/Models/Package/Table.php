@@ -17,7 +17,7 @@ namespace Huoban\Models\Package;
 trait Table
 {
     /**
-     * 获取要创建的表结构
+     * 获取要创建的表结构（基于伙伴数据表）
      *
      * @param [type] $space_id
      * @param [type] $table_name
@@ -38,10 +38,10 @@ trait Table
 
             switch ($type_id) {
                 case 1: // 文本
-                    $fields[] = $this->getFieldTextBasic($name, $alias, $maintain_table_alias, $fields_item);
+                    $fields[] = $this->getFieldTextBasicForItem($name, $alias, $maintain_table_alias, $fields_item);
                     break;
                 case 2: // 选项
-                    $fields[] = $this->getFieldCategoryBasic($name, $alias, $maintain_table_alias, $fields_item);
+                    $fields[] = $this->getFieldCategoryBasicForItem($name, $alias, $maintain_table_alias, $fields_item);
                     break;
                 case 3: // 数值
                     $fields[] = $this->getFieldNumberBasic($name, $alias);
@@ -53,7 +53,7 @@ trait Table
                     $fields[] = $this->getFieldDateTimeBasic($name, $alias);
                     break;
                 case 6: // 关联字段
-                    $fields[] = $this->getFieldRelationBasic($name, $alias, $maintain_table_alias, $fields_item);
+                    $fields[] = $this->getFieldRelationBasicForItem($name, $alias, $maintain_table_alias, $fields_item);
                     break;
                 default:
                     break;
@@ -131,6 +131,64 @@ trait Table
             ],
             'field_sync'   => 1,
         ];
+    }
+
+    /**
+     * 返回创建文本字段的基本格式(基于数据)
+     *
+     * @param [type] $name
+     * @param [type] $alias
+     * @param [type] $maintain_table_alias
+     * @param [type] $fields_item
+     * @return void
+     */
+    public function getFieldTextBasicForItem($name, $alias, $maintain_table_alias, $fields_item)
+    {
+        $app_text_type_id = current($fields_item[$maintain_table_alias . '.app_text_type_ids']);
+        // app_text_type_id 1: 'input', 2: 'rich'
+        return $this->getFieldTextBasic($name, $alias, $app_text_type_id);
+    }
+
+    /**
+     * 返回创建选项字段的基本格式(基于数据)
+     *
+     * @param [type] $name
+     * @param [type] $alias
+     * @param [type] $maintain_table_alias
+     * @param [type] $fields_item
+     * @return void
+     */
+    public function getFieldCategoryBasicForItem($name, $alias, $maintain_table_alias, $fields_item)
+    {
+        $category_id  = array_shift($fields_item[$maintain_table_alias . '.app_category_ids']);
+        $category_arr = json_decode($fields_item[$maintain_table_alias . '.app_category_json'], true);
+
+        return $this->getFieldCategoryBasic($name, $alias, $category_id, $category_arr);
+    }
+
+    /**
+     * 返回创建关联字段的基本格式(基于数据)
+     *
+     * @param [type] $name
+     * @param [type] $alias
+     * @param [type] $table
+     * @return void
+     */
+    public function getFieldRelationBasicForItem($name, $alias, $maintain_table_alias, $fields_item)
+    {
+        $relation_type_id         = current($fields_item[$maintain_table_alias . '.app_relation_type_ids']);
+        $relation_table_id        = $fields_item[$maintain_table_alias . '.app_relation_table_id'];
+        $display_attach_field_ids = $fields_item[$maintain_table_alias . '.app_display_attach_field_ids'];
+        // 第一个四位数 第二个四位数 第三个四位数 依次代表一级关联，二级关联，三级关联
+        //     四位中前两位 11代表创建字段 10代表固有字段
+        //     四位中后两位 代表第几个字段被关联
+
+        // 1101 00 0000 00 0000,
+        // 1102 00 1101 00 0000,
+        // 1102 00 1102 00 0000,
+        // 1103 00 0000 00 0000,
+        // 1001 00 0000 00 0000
+        $this->getFieldRelationBasic($name, $alias, $relation_table_id, $display_attach_field_ids, $relation_type_id);
     }
 
     /**
@@ -248,9 +306,8 @@ trait Table
      * @param string $config_type
      * @return void
      */
-    public function getFieldTextBasic($name, $alias, $maintain_table_alias, $fields_item)
+    public function getFieldTextBasic($name, $alias, $text_type_id = 1)
     {
-        $app_text_type_id = current($fields_item[$maintain_table_alias . '.app_text_type_ids']);
 
         return [
             'field_id'        => $alias,
@@ -267,7 +324,7 @@ trait Table
             'icon'            => '&#xe654',
             'manual'          => '1',
             'config'          => [
-                'type' => (1 == $app_text_type_id) ? 'input' : 'rich',
+                'type' => (1 == $text_type_id) ? 'input' : 'rich',
             ],
             'default_setting' => [
                 'type'  => '',
@@ -290,11 +347,12 @@ trait Table
      * @param [type] $options
      * @return void
      */
-    public function getFieldCategoryBasic($name, $alias, $maintain_table_alias, $fields_item)
+    public function getFieldCategoryBasic($name, $alias, $category_id = 1, $category_arr = [])
     {
-        $category_id  = array_shift($fields_item[$maintain_table_alias . '.app_category_ids']);
-        $category_arr = json_decode($fields_item[$maintain_table_alias . '.app_category_json'], true);
-        $options      = static::getCreateFieldCategoryConfigOptions($category_arr);
+        // $category_id  = array_shift($fields_item[$maintain_table_alias . '.app_category_ids']);
+        // $category_arr = json_decode($fields_item[$maintain_table_alias . '.app_category_json'], true);
+
+        $options = static::getCreateFieldCategoryConfigOptions($category_arr);
 
         return [
             "field_id"        => $alias,
@@ -336,20 +394,8 @@ trait Table
      * @param [type] $table
      * @return void
      */
-    public function getFieldRelationBasic($name, $alias, $maintain_table_alias, $fields_item)
+    public function getFieldRelationBasic($name, $alias, $relation_table_id, $display_attach_field_ids, $relation_type_id = 1)
     {
-        $app_relation_type_id     = current($fields_item[$maintain_table_alias . '.app_relation_type_ids']);
-        $relation_table_id        = $fields_item[$maintain_table_alias . '.app_relation_table_id'];
-        $display_attach_field_ids = $fields_item[$maintain_table_alias . '.app_display_attach_field_ids'];
-        // 第一个四位数 第二个四位数 第三个四位数 依次代表一级关联，二级关联，三级关联
-        //     四位中前两位 11代表创建字段 10代表固有字段
-        //     四位中后两位 代表第几个字段被关联
-
-        // 1101 00 0000 00 0000,
-        // 1102 00 1101 00 0000,
-        // 1102 00 1102 00 0000,
-        // 1103 00 0000 00 0000,
-        // 1001 00 0000 00 0000
 
         $table = $this->request->_table->get($relation_table_id);
 
@@ -366,7 +412,7 @@ trait Table
             "config"          => [
                 'table'                           => $table,
                 'table_id'                        => $table['table_id'],
-                'type'                            => 1 == $app_relation_type_id ? 'single' : 'multi',
+                'type'                            => 1 == $relation_type_id ? 'single' : 'multi',
                 'display_attach_field_ids'        => $display_attach_field_ids,
                 'default_hidden_attach_field_ids' => [],
                 'filter'                          => [],
