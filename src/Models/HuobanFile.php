@@ -18,7 +18,6 @@ class HuobanFile extends HuobanBasic
     public function upload($body = [], $options = [])
     {
         //  example
-
         //  $body = [
         //      'multipart' => [
         //          [
@@ -36,7 +35,7 @@ class HuobanFile extends HuobanBasic
         //      ],
         //  ];
 
-        $response = $this->request->getHttpClient($this->interfaceType)->request('POST', "/file", $body, $options);
+        $response = $this->request->getHttpClient($this->interfaceType)->request('POST', "/v2/file", $body, $options);
         return json_decode($response->getBody(), true);
     }
 }

@@ -28,10 +28,14 @@
 
 //         // 工作区id
 //         'space_id'           => '4000000002101383',
-//         // api地址
-//         'api_url'            => 'https://api.huoban.com',
-//         // 上传文件地址
-//         'upload_url'         => 'https://upload.huoban.com',
+//         'urls'               => [
+//              // api地址
+//              'api'    => 'https://api.huoban.com',
+//              // 上传文件地址
+//              'upload' => 'https://upload.huoban.com',
+//              // 缓存文件存放地址
+//              'bi'     => 'https://bi.huoban.com',
+//         ],
 //         // 缓存文件存放地址
 //         'cache_path'         => storage_path() . '/huoban/',
 //     ],

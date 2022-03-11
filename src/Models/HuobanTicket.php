@@ -56,6 +56,43 @@ class HuobanTicket extends HuobanBasic
     }
 
     /**
+     * 获取BI授权的请求
+     *
+     * @param [type] $application_id
+     * @param [type] $application_secret
+     * @param [type] $expired
+     * @return Request
+     */
+    public function getForBIRequest($application_id, $application_secret, $expired): Request
+    {
+        $attr = [
+            'application_id'     => $application_id,
+            'application_secret' => $application_secret,
+            'expired'            => $expired,
+        ];
+
+        return new Request('POST', '/v2/space/app/ticket', [], json_encode($attr));
+    }
+
+    /**
+     * 获取BI授权的执行操作
+     *
+     * @param $application_id
+     * @param $application_secret
+     * @param array $options
+     * @return string
+     * @throws Exception
+     */
+    public function getForBI($application_id, $application_secret, array $options = []): string
+    {
+        $expired  = $options['expired'] ?? $this->expired;
+        $request  = $this->getForBIRequest($application_id, $application_secret, $expired);
+        $response = $this->request->requestJsonSync($request);
+
+        return $response['ticket'];
+    }
+
+    /**
      * 获取分享授权的请求
      *
      * @param [type] $share_id
@@ -96,6 +133,8 @@ class HuobanTicket extends HuobanBasic
         switch ($type) {
             case 'enterprise':
                 return $this->getForEnterprise($this->config['application_id'], $this->config['application_secret'], $options);
+            case 'bi':
+                return $this->getForBi($this->config['application_id'], $this->config['application_secret'], $options);
             case 'share':
                 return $this->getForShare($this->config['share_id'], $this->config['secret'], $options);
             case 'table':
