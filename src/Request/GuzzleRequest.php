@@ -40,21 +40,47 @@ class GuzzleRequest implements RequestInterface
     }
 
     /**
-     * 执行具体操作
+     * 设置请求的默认请求头
      *
-     * @param string $method
-     * @param string $url
-     * @param array $body
      * @param array $options
-     * @return void
+     * @return array
      */
-    public function execute($method, $url, $body = [], $options = [])
+    public function defaultHeader($options = [])
     {
-        $request = $this->getRequest($method, $url, $body, $options);
-        // 普通接口请求('api')，上传请求('upload')，bi请求('bi')，
-        $interface_type = $options['interface_type'] ?? 'api';
+        $default_headers = [
+            'Content-Type' => 'application/json',
+        ];
 
-        return $this->requestJsonSync($request, $interface_type);
+        if (isset($this->config['space_id'])) {
+            $default_headers['X-Huoban-Return-Alias-Space-Id'] = $this->config['space_id'];
+        }
+
+        if (isset($this->config['ticket'])) {
+            $default_headers['X-Huoban-Ticket'] = $this->config['ticket'];
+        }
+
+        $options_headers = $options['headers'] ?? [];
+        return array_merge($default_headers, $options_headers);
+    }
+
+    /**
+     * 获取请求客户端
+     *
+     * @param string $interface_type
+     * @return \GuzzleHttp\Client
+     */
+    public function getHttpClient($interface_type)
+    {
+        if (!$this->client[$interface_type]) {
+            $this->client[$interface_type] = new Client([
+                'base_uri'    => $this->config['urls'][$interface_type],
+                'timeout'     => 600,
+                'verify'      => false,
+                'http_errors' => false,
+                'headers'     => $this->defaultHeader(),
+            ]);
+        }
+        return $this->client[$interface_type];
     }
 
     /**
@@ -76,45 +102,21 @@ class GuzzleRequest implements RequestInterface
     }
 
     /**
-     * 设置请求的默认请求头
+     * 执行具体操作
      *
+     * @param string $method
+     * @param string $url
+     * @param array $body
      * @param array $options
-     * @return array
+     * @return void
      */
-    public function defaultHeader($options = [])
+    public function execute($method, $url, $body = [], $options = [])
     {
-        $default_headers = [
-            'Content-Type' => 'application/json',
-        ];
+        $request = $this->getRequest($method, $url, $body, $options);
+        // 普通接口请求('api')，上传请求('upload')，bi请求('bi')，
+        $interface_type = $options['interface_type'] ?? 'api';
 
-        if (isset($this->config['space_id'])) {
-            $default_headers['X-Huoban-Return-Alias-Space-Id'] = $this->config['space_id'];
-        }
-
-        if (isset($this->config['ticket'])) {
-            $default_headers['X-Huoban-Ticket'] = $this->config['ticket'];
-        }
-
-        $options_headers = $options['headers'] ?? [];
-
-        return array_merge($default_headers, $options_headers);
-    }
-
-    /**
-     * 获取请求客户端
-     *
-     * @param string $interface_type
-     * @return \GuzzleHttp\Client
-     */
-    public function getHttpClient($interface_type)
-    {
-        return $this->client[$interface_type] = new Client([
-            'base_uri'    => $this->config['urls'][$interface_type],
-            'timeout'     => 600,
-            'verify'      => false,
-            'http_errors' => false,
-            'headers'     => $this->defaultHeader(),
-        ]);
+        return $this->requestJsonSync($request, $interface_type);
     }
 
     /**
