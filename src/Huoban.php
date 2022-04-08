@@ -54,11 +54,7 @@ class Huoban implements Factory
 
     public function make($model_name)
     {
-        if (!isset($this->models[$model_name])) {
-            $this->models[$model_name] = $this->resolve($model_name);
-        }
-
-        return $this->models[$model_name];
+        return $this->resolve($model_name);
     }
 
     /**
