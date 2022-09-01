@@ -5,7 +5,7 @@ namespace Huoban\Helpers;
 /**
  * 筛选器
  */
-class Filter
+class HuobanFilter
 {
     /**
      * 请求结构体
@@ -17,12 +17,6 @@ class Filter
     public function __construct()
     {
         $this->setBodyFefault();
-    }
-
-    public static function getNewFilter(): object
-    {
-        $filter = new self();
-        return $filter;
     }
 
     public function setBodyFefault()

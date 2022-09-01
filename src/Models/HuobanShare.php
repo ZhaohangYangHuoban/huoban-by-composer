@@ -11,7 +11,7 @@
 
 namespace Huoban\Models;
 
-use Huoban\HuobanBasic;
+use Huoban\Models\HuobanBasic;
 
 class HuobanShare extends HuobanBasic
 {

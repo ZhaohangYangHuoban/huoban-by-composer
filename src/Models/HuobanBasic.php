@@ -5,7 +5,7 @@
  * @Description: 伙伴智慧大客户研发部
  */
 
-namespace Huoban;
+namespace Huoban\Models;
 
 use Huoban\Contracts\RequestInterface;
 

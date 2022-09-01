@@ -4,14 +4,34 @@ namespace Huoban\Helpers\ToolsPackages;
 
 use Huoban\Helpers\Tools;
 use Huoban\Huoban;
-
 /**
  * 初始化同步两个工作区的表格别名使用
  */
 trait SyncSpaceTablesAlias
 {
     /**
-     * 同步字段别名
+     * 获取工作区内所有表格（一般提供给初始化使用）[废弃]
+     *
+     * @param Huoban $huoban_obj
+     * @param integer|null $expired
+     * @return array
+     */
+    public static function getTablesForSpaceId(Huoban $huoban): array
+    {
+        $huoban_space = $huoban->make('sapce');
+        $huoban_table = $huoban->make('table');
+
+        $space = $huoban_space->getSpace($huoban->getConfig['space_id']);
+
+        foreach ($space['table_ids'] as $table_id) {
+            $tables[] = $huoban_table->get($table_id);
+        }
+
+        return $tables;
+    }
+
+    /**
+     * 同步字段别名[废弃]
      *
      * @param Huoban $huoban_source_obj
      * @param Huoban $huoban_target_obj
@@ -43,7 +63,7 @@ trait SyncSpaceTablesAlias
     }
 
     /**
-     * 获取设定别名之后的表结构
+     * 获取设定别名之后的表结构[废弃]
      *
      * @param array $source_table
      * @param array $target_table
@@ -70,7 +90,7 @@ trait SyncSpaceTablesAlias
     }
 
     /**
-     * 根据提供的两个字段，返回设定好别名的结构体
+     * 根据提供的两个字段，返回设定好别名的结构体[废弃]
      *
      * @param array $source_field
      * @param array $target_field

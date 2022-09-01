@@ -13,6 +13,8 @@ use Huoban\Request\GuzzleRequest;
 
 class Huoban implements Factory
 {
+    use \Huoban\StandardComponent\Config;
+    use \Huoban\StandardComponent\HuobanStandardConfig;
 
     public $request;
     protected $models = [];
@@ -21,40 +23,39 @@ class Huoban implements Factory
 
     public function __construct($config = [])
     {
-        $this->config = $config + [
-            'name'               => 'huoban',
-            'alias_model'        => true,
-            'app_type'           => 'enterprise',
-            'space_id'           => '',
-            'application_id'     => '',
-            'application_secret' => '',
-            // pass默认地址，切换本地化部署需要修改
-            'urls'               => [
-                'api'    => 'https://api.huoban.com',
-                'upload' => 'https://upload.huoban.com',
-                'bi'     => 'https://bi.huoban.com',
-            ],
-        ];
-        $this->setRequest();
+        $this->config  = $config + $this->getStandardConfig();
+        $this->request = new GuzzleRequest($this->config);
+
         $this->setTicket();
     }
 
-    public function setRequest()
+    public function getTicket()
     {
-        $this->request = new GuzzleRequest($this->config);
+        $ticket = $this->make('ticket')->getTicket();
+        return $ticket;
     }
 
     public function setTicket()
     {
-        $ticket                          = $this->config['ticket'] ?? $this->make('ticket')->getTicket();
-        $this->request->config['ticket'] = $this->config['ticket'] = $ticket;
+        $ticket = $this->getTicket();
 
-        return $ticket;
+        $this->setConfig('ticket', $ticket);
+        $this->request->setConfig('ticket', $ticket);
     }
 
-    public function make($model_name)
+    public function make($model_name, $standard = false)
     {
-        return $this->resolve($model_name);
+        // 非标准返回返回新建数据对象，【swoole等常驻内存，避免相互影响】
+        if (!$standard) {
+            return $this->resolve($model_name);
+        }
+
+        if (!isset($this->models[$model_name])) {
+            $this->models[$model_name] = $this->resolve($model_name);
+        }
+
+        return $this->models[$model_name];
+
     }
 
     /**
@@ -66,15 +67,4 @@ class Huoban implements Factory
         $model = '\\Huoban\\Models\\Huoban' . ucfirst($model_name);
         return new $model($this->request, $this->config);
     }
-
-    public function setConfig($key, $val)
-    {
-        $this->config[$key] = $val;
-    }
-
-    public function getConfig($key, $val = '')
-    {
-        return $this->config[$key] ?? $val;
-    }
-
 }

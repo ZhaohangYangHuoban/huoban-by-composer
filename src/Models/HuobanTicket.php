@@ -13,7 +13,7 @@ namespace Huoban\Models;
 
 use Exception;
 use GuzzleHttp\Psr7\Request;
-use Huoban\HuobanBasic;
+use Huoban\Models\HuobanBasic;
 
 class HuobanTicket extends HuobanBasic
 {

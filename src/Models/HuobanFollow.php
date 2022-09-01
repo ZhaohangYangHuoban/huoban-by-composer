@@ -2,7 +2,7 @@
 
 namespace Huoban\Models;
 
-use Huoban\HuobanBasic;
+use Huoban\Models\HuobanBasic;
 
 class HuobanFollow extends HuobanBasic
 {

@@ -10,12 +10,13 @@ use Huoban\Contracts\RequestInterface;
 
 class GuzzleRequest implements RequestInterface
 {
+    use \Huoban\StandardComponent\Config;
     /**
      * 文件基础配置
      *
      * @var array
      */
-    public $config;
+    protected $config;
 
     protected $client;
 
@@ -27,16 +28,6 @@ class GuzzleRequest implements RequestInterface
     public function __construct(array $config = [])
     {
         $this->config = $config;
-    }
-
-    public function setConfig($key, $val)
-    {
-        $this->config[$key] = $val;
-    }
-
-    public function getConfig($key, $val = '')
-    {
-        return $this->config[$key] ?? $val;
     }
 
     /**
@@ -71,7 +62,7 @@ class GuzzleRequest implements RequestInterface
      */
     public function getHttpClient($interface_type)
     {
-        if (!$this->client[$interface_type]) {
+        if (!isset($this->client[$interface_type])) {
             $this->client[$interface_type] = new Client([
                 'base_uri'    => $this->config['urls'][$interface_type],
                 'timeout'     => 600,

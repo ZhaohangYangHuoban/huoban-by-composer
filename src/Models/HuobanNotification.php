@@ -2,6 +2,8 @@
 
 namespace Huoban\Models;
 
+use Huoban\Models\HuobanBasic;
+
 class HuobanNotification extends HuobanBasic
 {
 
