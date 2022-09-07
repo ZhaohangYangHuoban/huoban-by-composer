@@ -97,4 +97,22 @@ trait Items
         return $response;
     }
 
+    /**
+     * 根据筛选器集合，返回对应格式化数据集合
+     *
+     * @param [type] $table 表格：id/别名
+     * @param [array] $body
+     * @return array
+     */
+    public function findFormatSubItems($table, $sub_field_id, $main_item_id, $params = [], $options = [])
+    {
+        $body = $params + [
+            'limit'        => 100,
+            'offset'       => 0,
+            'sub_field_id' => $sub_field_id,
+            'main_item_id' => $main_item_id,
+        ];
+        return $this->findAllFormatItems($table, $body, $options);
+    }
+
 }
