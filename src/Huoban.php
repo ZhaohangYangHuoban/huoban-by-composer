@@ -31,7 +31,7 @@ class Huoban implements Factory
 
     public function getTicket()
     {
-        $ticket = $this->make('ticket')->getTicket();
+        $ticket = $this->getConfig('ticket') ?: $this->make('ticket')->getTicket();
         return $ticket;
     }
 
