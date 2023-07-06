@@ -26,15 +26,15 @@ class HuobanTicket extends HuobanBasic
      * @param [type] $expired
      * @return Request
      */
-    public function getForEnterpriseRequest($application_id, $application_secret, $expired): Request
+    public function getForEnterpriseRequest( $application_id, $application_secret, $expired ): Request
     {
-        $attr = [
+        $attr = [ 
             'application_id'     => $application_id,
             'application_secret' => $application_secret,
             'expired'            => $expired,
         ];
 
-        return new Request('POST', '/v2/ticket', [], json_encode($attr));
+        return new Request( 'POST', '/v2/ticket', [], json_encode( $attr ) );
     }
 
     /**
@@ -46,11 +46,11 @@ class HuobanTicket extends HuobanBasic
      * @return string
      * @throws Exception
      */
-    public function getForEnterprise($application_id, $application_secret, array $options = []): string
+    public function getForEnterprise( $application_id, $application_secret, array $options = [] ): string
     {
         $expired  = $options['expired'] ?? $this->expired;
-        $request  = $this->getForEnterpriseRequest($application_id, $application_secret, $expired);
-        $response = $this->request->requestJsonSync($request);
+        $request  = $this->getForEnterpriseRequest( $application_id, $application_secret, $expired );
+        $response = $this->request->requestJsonSync( $request );
 
         return $response['ticket'];
     }
@@ -63,15 +63,15 @@ class HuobanTicket extends HuobanBasic
      * @param [type] $expired
      * @return Request
      */
-    public function getForBIRequest($application_id, $application_secret, $expired): Request
+    public function getForBIRequest( $application_id, $application_secret, $expired ): Request
     {
-        $attr = [
+        $attr = [ 
             'application_id'     => $application_id,
             'application_secret' => $application_secret,
             'expired'            => $expired,
         ];
 
-        return new Request('POST', '/v2/space/app/ticket', [], json_encode($attr));
+        return new Request( 'POST', '/v2/space/app/ticket', [], json_encode( $attr ) );
     }
 
     /**
@@ -83,11 +83,11 @@ class HuobanTicket extends HuobanBasic
      * @return string
      * @throws Exception
      */
-    public function getForBI($application_id, $application_secret, array $options = []): string
+    public function getForBI( $application_id, $application_secret, array $options = [] ): string
     {
         $expired  = $options['expired'] ?? $this->expired;
-        $request  = $this->getForBIRequest($application_id, $application_secret, $expired);
-        $response = $this->request->requestJsonSync($request);
+        $request  = $this->getForBIRequest( $application_id, $application_secret, $expired );
+        $response = $this->request->requestJsonSync( $request );
 
         return $response['ticket'];
     }
@@ -100,25 +100,25 @@ class HuobanTicket extends HuobanBasic
      * @param [type] $expired
      * @return Request
      */
-    protected function getForShareRequest($share_id, $secret, $expired): Request
+    protected function getForShareRequest( $share_id, $secret, $expired ): Request
     {
-        $attr = [
+        $attr = [ 
             'share_id' => $share_id,
             'secret'   => $secret,
             'expired'  => $expired,
         ];
 
-        return new Request('POST', '/v2/ticket', [], json_encode($attr));
+        return new Request( 'POST', '/v2/ticket', [], json_encode( $attr ) );
     }
 
     /**
      * @throws Exception
      */
-    protected function getForShare($share_id, $secret, $options)
+    protected function getForShare( $share_id, $secret, $options )
     {
         $expired  = $options['expired'] ?? $this->expired;
-        $request  = $this->getForShareRequest($share_id, $secret, $expired);
-        $response = $this->request->requestJsonSync($request);
+        $request  = $this->getForShareRequest( $share_id, $secret, $expired );
+        $response = $this->request->requestJsonSync( $request );
 
         return $response['ticket'];
     }
@@ -126,17 +126,17 @@ class HuobanTicket extends HuobanBasic
     /**
      * @throws InvalidArgumentException
      */
-    public function getTicket($options = [])
+    public function getTicket( $options = [] )
     {
         $type = $this->config['app_type'];
 
         switch ($type) {
             case 'enterprise':
-                return $this->getForEnterprise($this->config['application_id'], $this->config['application_secret'], $options);
+                return $this->getForEnterprise( $this->config['application_id'], $this->config['application_secret'], $options );
             case 'bi':
-                return $this->getForBi($this->config['application_id'], $this->config['application_secret'], $options);
+                return $this->getForBi( $this->config['application_id'], $this->config['application_secret'], $options );
             case 'share':
-                return $this->getForShare($this->config['share_id'], $this->config['secret'], $options);
+                return $this->getForShare( $this->config['share_id'], $this->config['secret'], $options );
             case 'table':
                 return $this->config['ticket'];
             default:
@@ -144,8 +144,8 @@ class HuobanTicket extends HuobanBasic
         }
     }
 
-    public function parse($body = [], $options = [])
+    public function parse( $body = [], $options = [] )
     {
-        return $this->request->execute('GET', "/ticket/parse", $body, $options);
+        return $this->request->execute( 'GET', "/ticket/parse", $body, $options );
     }
 }

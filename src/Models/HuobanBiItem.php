@@ -17,76 +17,77 @@ class HuobanBiItem extends HuobanBasic
      */
     public $interfaceType = 'bi';
 
-    public function findRequest($table, $body = [], $options = [])
-    {
-        $options['interface_type']                                = $this->interfaceType;
-        $options['headers']['x-huoban-return-fields'] ?? $options = $this->getHeadersOptionOnlyItemsFields($options);
-
-        $body['limit'] = $body['limit'] ?? 500;
-        return $this->request->getRequest('POST', "/item/table/{$table}/find", $body, $options);
-    }
-    public function find($table, $body = [], $options = [])
-    {
-        $options['interface_type']                                = $this->interfaceType;
-        $options['headers']['x-huoban-return-fields'] ?? $options = $this->getHeadersOptionOnlyItemsFields($options);
-
-        $body['limit'] = $body['limit'] ?? 500;
-        return $this->request->execute('POST', "/item/table/{$table}/find", $body, $options);
-    }
-
-    public function getFiltered($table, $body = [], $options = [])
+    public function findRequest( $table, $body = [], $options = [] )
     {
         $options['interface_type'] = $this->interfaceType;
-        $options                   = $this->getHeadersOptionOnlyFiltered($options, false);
+        $options['headers']['x-huoban-return-fields'] ?? $options = $this->getHeadersOptionOnlyItemsFields( $options );
+
+        $body['limit'] = $body['limit'] ?? 500;
+        return $this->request->getRequest( 'POST', "/item/table/{$table}/find", $body, $options );
+    }
+    public function find( $table, $body = [], $options = [] )
+    {
+        $options['interface_type'] = $this->interfaceType;
+        $options['headers']['x-huoban-return-fields'] ?? $options = $this->getHeadersOptionOnlyItemsFields( $options );
+
+        $body['limit'] = $body['limit'] ?? 500;
+        return $this->request->execute( 'POST', "/item/table/{$table}/find", $body, $options );
+    }
+
+    public function getFiltered( $table, $body = [], $options = [] )
+    {
+        $options['interface_type'] = $this->interfaceType;
+        $options                   = $this->getHeadersOptionOnlyFiltered( $options, false );
 
         $body['limit'] = 1;
-        $response      = $this->find($table, $body, $options);
+        $response      = $this->find( $table, $body, $options );
         return $response['filtered'];
     }
 
-    public function getTotal($table, $body = [], $options = [])
+    public function getTotal( $table, $body = [], $options = [] )
     {
         $options['interface_type'] = $this->interfaceType;
-        $options                   = $this->getHeadersOptionOnlyTotal($options, false);
+        $options                   = $this->getHeadersOptionOnlyTotal( $options, false );
 
         $body['limit'] = 1;
-        $response      = $this->find($table, $body, $options);
+        $response      = $this->find( $table, $body, $options );
 
         return $response['total'];
     }
 
-    public function findAllRequest($table, $body = [], $options = [])
+    public function findAllRequest( $table, $body = [], $options = [] )
     {
         $options['interface_type'] = $this->interfaceType;
 
         $requests = [];
-        $filtered = $this->getFiltered($table, $body, $options);
+        $filtered = $this->getFiltered( $table, $body, $options );
 
         // 查询全部数据的所有请求
         $body['limit'] = 500;
-        for ($i = 0; $i < ceil($filtered / $body['limit']); $i++) {
+        for ( $i = 0; $i < ceil( $filtered / $body['limit'] ); $i++ ) {
 
             $body['offset'] = $body['limit'] * $i;
-            $requests[]     = $this->findRequest($table, $body, $options);
+            $requests[]     = $this->findRequest( $table, $body, $options );
         }
         return $requests;
 
     }
-    public function findAll($table, $body = [], $options = [])
+    public function findAll( $table, $body = [], $options = [] )
     {
         $options['interface_type'] = $this->interfaceType;
 
         $responses = [];
-        $requests  = $this->findAllRequest($table, $body, $options);
+        $requests  = $this->findAllRequest( $table, $body, $options );
         // 返回结果集,key为item_id
-        $responses = $this->request->requestJsonPool($requests);
+        $responses = $this->request->requestJsonPool( $requests );
 
         $return_data = [];
-        foreach ($responses['success_data'] as $success_response) {
-            if (!$return_data) {
+        foreach ( $responses['success_data'] as $success_response ) {
+            if ( ! $return_data ) {
                 $return_data = $success_response['response'];
-            } else {
-                $return_data['items'] = $return_data['items'] + array_combine(array_column($success_response['response']['items'], 'item_id'), $success_response['response']['items']);
+            }
+            else {
+                $return_data['items'] = $return_data['items'] + array_combine( array_column( $success_response['response']['items'], 'item_id' ), $success_response['response']['items'] );
             }
 
         }
@@ -94,174 +95,174 @@ class HuobanBiItem extends HuobanBasic
         return $return_data;
     }
 
-    public function statsRequest($table_id, $body = [], $options = [])
+    public function statsRequest( $table_id, $body = [], $options = [] )
     {
-        $options['interface_type']                                = $this->interfaceType;
-        $options['headers']['x-huoban-return-fields'] ?? $options = $this->getHeadersOptionOnlyItemsFields($options);
+        $options['interface_type'] = $this->interfaceType;
+        $options['headers']['x-huoban-return-fields'] ?? $options = $this->getHeadersOptionOnlyItemsFields( $options );
 
         $body['limit'] = $body['limit'] ?? 500;
-        return $this->request->getRequest('POST', "/item/table/{$table_id}/stats", $body, $options);
+        return $this->request->getRequest( 'POST', "/item/table/{$table_id}/stats", $body, $options );
     }
-    public function stats($table_id, $body = [], $options = [])
+    public function stats( $table_id, $body = [], $options = [] )
     {
-        $options['interface_type']                                = $this->interfaceType;
-        $options['headers']['x-huoban-return-fields'] ?? $options = $this->getHeadersOptionOnlyItemsFields($options);
+        $options['interface_type'] = $this->interfaceType;
+        $options['headers']['x-huoban-return-fields'] ?? $options = $this->getHeadersOptionOnlyItemsFields( $options );
 
         $body['limit'] = $body['limit'] ?? 500;
-        return $this->request->execute('POST', "/item/table/{$table_id}/stats", $body, $options);
+        return $this->request->execute( 'POST', "/item/table/{$table_id}/stats", $body, $options );
     }
 
-    public function updateRequest($item_id, $body = [], $options = [])
+    public function updateRequest( $item_id, $body = [], $options = [] )
     {
         $options['interface_type'] = $this->interfaceType;
-        return $this->request->getRequest('PUT', "/item/{$item_id}", $body, $options);
+        return $this->request->getRequest( 'PUT', "/item/{$item_id}", $body, $options );
     }
-    public function update($item_id, $body = [], $options = [])
+    public function update( $item_id, $body = [], $options = [] )
     {
         $options['interface_type'] = $this->interfaceType;
-        return $this->request->execute('PUT', "/item/{$item_id}", $body, $options);
-    }
-
-    public function updatesRequest($table, $body = [], $options = [])
-    {
-        $options['interface_type'] = $this->interfaceType;
-        return $this->request->getRequest('POST', "/item/table/{$table}/update", $body, $options);
-    }
-    public function updates($table, $body = [], $options = [])
-    {
-        $options['interface_type'] = $this->interfaceType;
-        return $this->request->execute('POST', "/item/table/{$table}/update", $body, $options);
+        return $this->request->execute( 'PUT', "/item/{$item_id}", $body, $options );
     }
 
-    public function createRequest($table, $body = null, $options = [])
+    public function updatesRequest( $table, $body = [], $options = [] )
     {
         $options['interface_type'] = $this->interfaceType;
-        return $this->request->getRequest('POST', "/item/table/{$table}", $body, $options);
+        return $this->request->getRequest( 'POST', "/item/table/{$table}/update", $body, $options );
     }
-    public function create($table, $body = null, $options = [])
+    public function updates( $table, $body = [], $options = [] )
     {
         $options['interface_type'] = $this->interfaceType;
-        return $this->request->execute('POST', "/item/table/{$table}", $body, $options);
-    }
-
-    public function createsRequest($table, $body = null, $options = [])
-    {
-        $options['interface_type'] = $this->interfaceType;
-        return $this->request->getRequest('POST', "/item/table/{$table}/create", $body, $options);
-    }
-    public function creates($table, $body = null, $options = [])
-    {
-        $options['interface_type'] = $this->interfaceType;
-        return $this->request->execute('POST', "/item/table/{$table}/create", $body, $options);
+        return $this->request->execute( 'POST', "/item/table/{$table}/update", $body, $options );
     }
 
-    public function delRequest($item_id, $body = null, $options = [])
+    public function createRequest( $table, $body = null, $options = [] )
     {
         $options['interface_type'] = $this->interfaceType;
-        return $this->request->getRequest('POST', "/item/{$item_id}", $body, $options);
+        return $this->request->getRequest( 'POST', "/item/table/{$table}", $body, $options );
     }
-    public function del($item_id, $body = null, $options = [])
+    public function create( $table, $body = null, $options = [] )
     {
         $options['interface_type'] = $this->interfaceType;
-        return $this->request->execute('DELETE', "/item/{$item_id}", $body, $options);
-    }
-
-    public function delsRequest($table, $body = null, $options = [])
-    {
-        $options['interface_type'] = $this->interfaceType;
-        return $this->request->getRequest('DELETE', "/item/table/{$table}/delete", $body, $options);
-    }
-    public function dels($table, $body = null, $options = [])
-    {
-        $options['interface_type'] = $this->interfaceType;
-        return $this->request->execute('POST', "/item/table/{$table}/delete", $body, $options);
+        return $this->request->execute( 'POST', "/item/table/{$table}", $body, $options );
     }
 
-    public function getRequest($item_id, $body = null, $options = [])
+    public function createsRequest( $table, $body = null, $options = [] )
     {
         $options['interface_type'] = $this->interfaceType;
-        return $this->request->getRequest('GET', "/item/{$item_id}", $body, $options);
+        return $this->request->getRequest( 'POST', "/item/table/{$table}/create", $body, $options );
     }
-    public function get($item_id, $body = null, $options = [])
+    public function creates( $table, $body = null, $options = [] )
     {
         $options['interface_type'] = $this->interfaceType;
-        return $this->request->execute('GET', "/item/{$item_id}", $body, $options);
+        return $this->request->execute( 'POST', "/item/table/{$table}/create", $body, $options );
     }
 
-    public function handleItems($items)
+    public function delRequest( $item_id, $body = null, $options = [] )
+    {
+        $options['interface_type'] = $this->interfaceType;
+        return $this->request->getRequest( 'POST', "/item/{$item_id}", $body, $options );
+    }
+    public function del( $item_id, $body = null, $options = [] )
+    {
+        $options['interface_type'] = $this->interfaceType;
+        return $this->request->execute( 'DELETE', "/item/{$item_id}", $body, $options );
+    }
+
+    public function delsRequest( $table, $body = null, $options = [] )
+    {
+        $options['interface_type'] = $this->interfaceType;
+        return $this->request->getRequest( 'DELETE', "/item/table/{$table}/delete", $body, $options );
+    }
+    public function dels( $table, $body = null, $options = [] )
+    {
+        $options['interface_type'] = $this->interfaceType;
+        return $this->request->execute( 'POST', "/item/table/{$table}/delete", $body, $options );
+    }
+
+    public function getRequest( $item_id, $body = null, $options = [] )
+    {
+        $options['interface_type'] = $this->interfaceType;
+        return $this->request->getRequest( 'GET', "/item/{$item_id}", $body, $options );
+    }
+    public function get( $item_id, $body = null, $options = [] )
+    {
+        $options['interface_type'] = $this->interfaceType;
+        return $this->request->execute( 'GET', "/item/{$item_id}", $body, $options );
+    }
+
+    public function handleItems( $items )
     {
         $format_items = [];
-        foreach ($items as $item) {
+        foreach ( $items as $item ) {
             $item_id                = (string) $item['item_id'];
-            $format_items[$item_id] = $this->returnDiy($item);
+            $format_items[ $item_id ] = $this->returnDiy( $item );
         }
         return $format_items;
     }
 
-    public function returnDiy($item, $type = 'api')
+    public function returnDiy( $item, $type = 'api' )
     {
         $format_item = [];
-        foreach ($item['fields'] as $field) {
-            if ($field) {
+        foreach ( $item['fields'] as $field ) {
+            if ( $field ) {
 
                 $field_key = $field['alias'] ?: (string) $field['field_id'];
-                $field_key = 'api' == $type ? $field_key : str_replace('.', '-', $field_key);
+                $field_key = 'api' == $type ? $field_key : str_replace( '.', '-', $field_key );
 
                 switch ($field['type']) {
                     case 'number':
                     case 'text':
                     case 'calculation':
                     case 'date':
-                        $format_item[$field_key] = $field['values'][0]['value'];
+                        $format_item[ $field_key ] = $field['values'][0]['value'];
                         break;
                     case 'user':
-                        $format_item[$field_key]          = $field['values'][0]['name'];
-                        $format_item[$field_key . '_uid'] = $field['values'][0]['user_id'];
+                        $format_item[ $field_key ] = $field['values'][0]['name'];
+                        $format_item[ $field_key . '_uid' ] = $field['values'][0]['user_id'];
                         break;
                     case 'relation':
-                        $ids    = [];
+                        $ids = [];
                         $titles = [];
-                        foreach ($field['values'] as $value) {
+                        foreach ( $field['values'] as $value ) {
                             $ids[]    = $value['item_id'];
                             $titles[] = $value['title'];
                         }
-                        $format_item[$field_key]             = implode(',', $titles);
-                        $format_item[$field_key . '_ids']    = $ids;
-                        $format_item[$field_key . '_titles'] = $titles;
+                        $format_item[ $field_key ] = implode( ',', $titles );
+                        $format_item[ $field_key . '_ids' ] = $ids;
+                        $format_item[ $field_key . '_titles' ] = $titles;
                         break;
                     case 'category':
-                        $ids   = [];
+                        $ids = [];
                         $names = [];
-                        foreach ($field['values'] as $value) {
+                        foreach ( $field['values'] as $value ) {
                             $ids[]   = $value['id'];
                             $names[] = $value['name'];
                         }
-                        $format_item[$field_key]            = implode(',', $names);
-                        $format_item[$field_key . '_ids']   = $ids;
-                        $format_item[$field_key . '_names'] = $names;
+                        $format_item[ $field_key ] = implode( ',', $names );
+                        $format_item[ $field_key . '_ids' ] = $ids;
+                        $format_item[ $field_key . '_names' ] = $names;
                         break;
                     case 'image':
                         $sources = [];
-                        foreach ($field['values'] as $value) {
+                        foreach ( $field['values'] as $value ) {
                             $sources[] = $value['link']['source'];
                         }
-                        $format_item[$field_key]                 = implode(';', $sources);
-                        $format_item[$field_key . '_linksource'] = $sources;
+                        $format_item[ $field_key ] = implode( ';', $sources );
+                        $format_item[ $field_key . '_linksource' ] = $sources;
 
-                        $names   = [];
+                        $names = [];
                         $fileids = [];
-                        foreach ($field['values'] as $value) {
+                        foreach ( $field['values'] as $value ) {
                             $names[]   = $value['name'];
                             $fileids[] = $value['file_id'];
                         }
-                        $format_item[$field_key . '_file_ids'] = $fileids;
-                        $format_item[$field_key . '_names']    = $names;
+                        $format_item[ $field_key . '_file_ids' ] = $fileids;
+                        $format_item[ $field_key . '_names' ] = $names;
                         break;
                     case 'signature':
-                        $user                              = $field['values'][0]['user'];
-                        $file                              = $field['values'][0]['file'];
-                        $format_item[$field_key]           = $file['link']['source'];
-                        $format_item[$field_key . '_user'] = $user;
+                        $user = $field['values'][0]['user'];
+                        $file = $field['values'][0]['file'];
+                        $format_item[ $field_key ] = $file['link']['source'];
+                        $format_item[ $field_key . '_user' ] = $user;
                         break;
                     default:
                         break;
@@ -279,15 +280,15 @@ class HuobanBiItem extends HuobanBasic
      * @param boolean $pre_judge
      * @return void
      */
-    public function getHeadersOptionOnlyItemsFields($options, $pre_judge = true)
+    public function getHeadersOptionOnlyItemsFields( $options, $pre_judge = true )
     {
-        $options['headers']['x-huoban-return-fields'] = json_encode([
-            [
-                "items" => [
-                    ['item_id', 'fields'],
+        $options['headers']['x-huoban-return-fields'] = json_encode( [ 
+            [ 
+                "items" => [ 
+                    [ 'item_id', 'fields' ],
                 ],
             ],
-        ], JSON_UNESCAPED_UNICODE);
+        ], JSON_UNESCAPED_UNICODE );
 
         return $options;
     }
@@ -299,9 +300,9 @@ class HuobanBiItem extends HuobanBasic
      * @param boolean $pre_judge
      * @return void
      */
-    public function getHeadersOptionOnlyFiltered($options)
+    public function getHeadersOptionOnlyFiltered( $options )
     {
-        $options['headers']['x-huoban-return-fields'] = json_encode(["filtered"], JSON_UNESCAPED_UNICODE);
+        $options['headers']['x-huoban-return-fields'] = json_encode( [ "filtered" ], JSON_UNESCAPED_UNICODE );
         return $options;
     }
 
@@ -312,9 +313,9 @@ class HuobanBiItem extends HuobanBasic
      * @param boolean $pre_judge
      * @return void
      */
-    public function getHeadersOptionOnlyTotal($options)
+    public function getHeadersOptionOnlyTotal( $options )
     {
-        $options['headers']['x-huoban-return-fields'] = json_encode(["total"], JSON_UNESCAPED_UNICODE);
+        $options['headers']['x-huoban-return-fields'] = json_encode( [ "total" ], JSON_UNESCAPED_UNICODE );
         return $options;
     }
 
@@ -325,9 +326,9 @@ class HuobanBiItem extends HuobanBasic
      * @param boolean $pre_judge
      * @return void
      */
-    public function getHeadersOptionOnlyFilteredAndTotal($options)
+    public function getHeadersOptionOnlyFilteredAndTotal( $options )
     {
-        $options['headers']['x-huoban-return-fields'] = json_encode(["filtered", "total"], JSON_UNESCAPED_UNICODE);
+        $options['headers']['x-huoban-return-fields'] = json_encode( [ "filtered", "total" ], JSON_UNESCAPED_UNICODE );
         return $options;
     }
 
