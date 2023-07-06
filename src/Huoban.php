@@ -29,7 +29,7 @@ class Huoban
         $ticket = $this->getConfig( 'ticket' );
         if ( ! $ticket ) {
             $huoban_ticket = new HuobanTicket( $this->request, $this->config );
-            $huoban_ticket->getTicket();
+            $ticket        = $huoban_ticket->getTicket();
         }
         return $ticket;
     }
