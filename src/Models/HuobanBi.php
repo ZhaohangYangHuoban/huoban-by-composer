@@ -23,7 +23,7 @@ class HuobanBi extends HuobanBasic
      */
     public $interfaceType = 'bi';
 
-    public function register($body = [], $options = [])
+    public function register( $body = [], $options = [] )
     {
         //  example
 
@@ -36,7 +36,7 @@ class HuobanBi extends HuobanBasic
         //      ],
         //  ];
         $options['interface_type'] = $this->interfaceType;
-        $response                  = $this->request->execute('POST', "/app_sync/register", $body, $options);
+        $response                  = $this->request->execute( 'POST', "/app_sync/register", $body, $options );
 
         return $response;
     }
@@ -46,9 +46,9 @@ class HuobanBi extends HuobanBasic
      *
      * @param array $body
      * @param array $options
-     * @return void
+     * @return mixed
      */
-    public function sync($body = [], $options = [])
+    public function sync( $body = [], $options = [] )
     {
         //  example
 
@@ -58,7 +58,7 @@ class HuobanBi extends HuobanBasic
         //      'sync_version' => '2021-04-21 22:00:00',
         //  ];
         $options['interface_type'] = $this->interfaceType;
-        $response                  = $this->request->execute('POST', "/app_sync/data", $body, $options);
+        $response                  = $this->request->execute( 'POST', "/app_sync/data", $body, $options );
 
         return $response;
     }
@@ -70,7 +70,7 @@ class HuobanBi extends HuobanBasic
      * @param array $options
      * @return void
      */
-    public function syncV2($body = [], $options = [])
+    public function syncV2( $body = [], $options = [] )
     {
         //  example
 
@@ -81,7 +81,7 @@ class HuobanBi extends HuobanBasic
         //      'trigger_calculate' => false(是否为计算字段),
         //  ];
         $options['interface_type'] = $this->interfaceType;
-        $response                  = $this->request->execute('POST', "/app_sync/data", $body, $options);
+        $response                  = $this->request->execute( 'POST', "/app_sync/data", $body, $options );
 
         return $response;
     }

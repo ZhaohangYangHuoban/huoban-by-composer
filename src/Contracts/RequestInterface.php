@@ -4,15 +4,17 @@ namespace Huoban\Contracts;
 
 interface RequestInterface
 {
+    public function getConfig( string $key );
+    public function setConfig( string $key, mixed $value );
 
-    public function execute($method, $uri, $body = [], $options = []);
+    public function execute( $method, $uri, $body = [], $options = [] );
 
-    public function getHttpClient($interface_type);
+    public function getHttpClient( $interface_type );
 
-    public function getRequest($method, $url, $body = [], $options = []);
+    public function getRequest( $method, $url, $body = [], $options = [] );
 
-    public function requestJsonPool($requests, $interface_type = 'api', $concurrency = 20);
+    public function requestJsonPool( $requests, $interface_type = 'api', $concurrency = 20 );
 
-    public function requestJsonSync($request, $interface_type = '');
+    public function requestJsonSync( $request, $interface_type = '' );
 
 }

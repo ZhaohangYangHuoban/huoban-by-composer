@@ -23,7 +23,7 @@ class HuobanBiFile extends HuobanBasic
      * @param array $options
      * @return void
      */
-    public function upload($body = [], $options = [])
+    public function upload( $body = [], $options = [] )
     {
         //  example
 
@@ -49,9 +49,9 @@ class HuobanBiFile extends HuobanBasic
         //  ];
 
         try {
-            $response = $this->request->getHttpClient($this->interfaceType)->request('POST', '/v2/app_sync/file', $body, $options);
-            $response = json_decode($response->getBody(), true);
-        } catch (\Throwable $th) {
+            $response = $this->request->getHttpClient( $this->interfaceType )->request( 'POST', '/v2/app_sync/file', $body, $options );
+            $response = json_decode( $response->getBody(), true );
+        } catch ( \Throwable $th ) {
             $response = $th->getMessage();
         }
         return $response;

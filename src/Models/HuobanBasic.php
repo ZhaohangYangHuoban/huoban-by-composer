@@ -11,12 +11,10 @@ use Huoban\Contracts\RequestInterface;
 
 class HuobanBasic
 {
-    public $request;
-    public $config;
+    public RequestInterface $request;
 
-    public function __construct(RequestInterface $request, $config)
+    public function __construct( RequestInterface $request )
     {
         $this->request = $request;
-        $this->config  = $config;
     }
 }

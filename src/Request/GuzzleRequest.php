@@ -11,7 +11,6 @@ use Huoban\Contracts\RequestInterface;
 class GuzzleRequest implements RequestInterface
 {
     use \Huoban\StandardComponent\Config;
-    public $config;
     protected $client;
 
     /**
@@ -69,24 +68,6 @@ class GuzzleRequest implements RequestInterface
     }
 
     /**
-     * 获取执行工作的请求
-     *
-     * @param string $method
-     * @param string $url
-     * @param array $body
-     * @param array $options
-     * @return \GuzzleHttp\Psr7\Request
-     */
-    public function getRequest( $method, $url, $body = [], $options = [] )
-    {
-        $url     = $options['version'] ?? '/v2' . $url;
-        $body    = json_encode( $body );
-        $headers = $this->defaultHeader( $options );
-
-        return new Request( $method, $url, $headers, $body );
-    }
-
-    /**
      * 执行具体操作
      *
      * @param string $method
@@ -105,6 +86,24 @@ class GuzzleRequest implements RequestInterface
     }
 
     /**
+     * 获取执行工作的请求
+     *
+     * @param string $method
+     * @param string $url
+     * @param array $body
+     * @param array $options
+     * @return \GuzzleHttp\Psr7\Request
+     */
+    public function getRequest( $method, $url, $body = [], $options = [] )
+    {
+        $url     = $options['version'] ?? '/v2' . $url;
+        $body    = json_encode( $body );
+        $headers = $this->defaultHeader( $options );
+
+        return new Request( $method, $url, $headers, $body );
+    }
+
+    /**
      * 发送请求，并返回结果
      *
      * @param \GuzzleHttp\Psr7\Request $request
@@ -115,7 +114,7 @@ class GuzzleRequest implements RequestInterface
     {
         try {
             $response = $this->getHttpClient( $interface_type )->send( $request );
-        } catch (ServerException $e) {
+        } catch ( ServerException $e ) {
             $response = $e->getResponse();
         }
 
@@ -125,7 +124,7 @@ class GuzzleRequest implements RequestInterface
     /**
      * 批量发送请求，并返回结果
      *
-     * @param \GuzzleHttp\Psr7\Request $requests
+     * @param array $requests
      * @param string $interface_type
      * @param integer $concurrency
      * @return array
@@ -138,13 +137,15 @@ class GuzzleRequest implements RequestInterface
 
         $pool = new Pool( $client, $requests, [ 
             'concurrency' => $concurrency,
-            'fulfilled'   => function ($response, $index) use (&$success_data) {
+            'fulfilled'   => function ($response, $index) use (&$success_data)
+            {
                 $success_data[] = [ 
                     'index'    => $index,
                     'response' => json_decode( $response->getBody(), true ),
                 ];
             },
-            'rejected'    => function ($response, $index) use (&$error_data) {
+            'rejected'    => function ($response, $index) use (&$error_data)
+            {
                 $error_data[] = [ 
                     'index'    => $index,
                     'response' => $response,

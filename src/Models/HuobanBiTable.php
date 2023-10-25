@@ -20,10 +20,10 @@ class HuobanBiTable extends HuobanBasic
      * @param array $options
      * @return void
      */
-    public function create($space_id, $body = null, $options = [])
+    public function create( $space_id, $body = null, $options = [] )
     {
         $options['interface_type'] = $this->interfaceType;
-        $response                  = $this->request->execute('POST', "/sync_table/space/{$space_id}", $body, $options);
+        $response                  = $this->request->execute( 'POST', "/sync_table/space/{$space_id}", $body, $options );
         return $response;
     }
 
@@ -35,10 +35,10 @@ class HuobanBiTable extends HuobanBasic
      * @param array $options
      * @return void
      */
-    public function update($space_id, $body = null, $options = [])
+    public function update( $space_id, $body = null, $options = [] )
     {
         $options['interface_type'] = $this->interfaceType;
-        $response                  = $this->request->execute('PUT', "/sync_table/space/{$space_id}", $body, $options);
+        $response                  = $this->request->execute( 'PUT', "/sync_table/space/{$space_id}", $body, $options );
         return $response;
     }
 
@@ -50,10 +50,10 @@ class HuobanBiTable extends HuobanBasic
      * @param array $options
      * @return void
      */
-    public function get($table_id, $body = null, $options = [])
+    public function get( $table_id, $body = null, $options = [] )
     {
         $options['interface_type'] = $this->interfaceType;
-        $response                  = $this->request->execute('GET', "/table/{$table_id}", $body, $options);
+        $response                  = $this->request->execute( 'GET', "/table/{$table_id}", $body, $options );
         return $response;
     }
 
@@ -66,10 +66,10 @@ class HuobanBiTable extends HuobanBasic
      * @param array $options
      * @return void
      */
-    public function delete($space_id, $table_alias, $body = null, $options = [])
+    public function delete( $space_id, $table_alias, $body = null, $options = [] )
     {
         $options['interface_type'] = $this->interfaceType;
-        $response                  = $this->request->execute('delete', "/sync_table/space/{$space_id}/alias/{$table_alias}", $body, $options);
+        $response                  = $this->request->execute( 'delete', "/sync_table/space/{$space_id}/alias/{$table_alias}", $body, $options );
         return $response;
     }
 
@@ -79,25 +79,25 @@ class HuobanBiTable extends HuobanBasic
      * @param [type] $date_time
      * @return void
      */
-    public function uploadExecuteImmediately(HuobanBi $huoban_bi, $date_time)
+    public function uploadExecuteImmediately( HuobanBi $huoban_bi, $date_time )
     {
         $response = [];
 
-        $body = [
+        $body = [ 
             'type'         => 'sync',
             'space_id'     => $this->request->config['space_id'],
             'sync_version' => $date_time,
         ];
 
-        $response[] = $huoban_bi->sync($body);
+        $response[] = $huoban_bi->sync( $body );
 
-        $body = [
+        $body = [ 
             'type'         => 'calculate',
             'space_id'     => $this->request->config['space_id'],
             'sync_version' => $date_time,
         ];
 
-        $response[] = $huoban_bi->sync($body);
+        $response[] = $huoban_bi->sync( $body );
 
         return $response;
 
@@ -111,10 +111,10 @@ class HuobanBiTable extends HuobanBasic
      * @param array $options
      * @return void
      */
-    public function syncFrom($space_id, $body = null, $options = [])
+    public function syncFrom( $space_id, $body = null, $options = [] )
     {
         $options['interface_type'] = $this->interfaceType;
-        $response                  = $this->request->execute('POST', "/table/space/{$space_id}/sync_from", $body, $options);
+        $response                  = $this->request->execute( 'POST', "/table/space/{$space_id}/sync_from", $body, $options );
         return $response;
     }
 

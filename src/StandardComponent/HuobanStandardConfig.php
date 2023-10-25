@@ -11,7 +11,7 @@ trait HuobanStandardConfig
 {
     public function getStandardConfig()
     {
-        return [
+        return [ 
             // 应用授权名称
             'name'               => 'huoban',
             // 企业api 授权
@@ -29,7 +29,7 @@ trait HuobanStandardConfig
             // 企业id
             'company_ids'        => [],
             // pass默认地址，切换本地化部署需要修改
-            'urls'               => [
+            'urls'               => [ 
                 'api'    => 'https://api.huoban.com',
                 'upload' => 'https://upload.huoban.com',
                 'bi'     => 'https://bi.huoban.com',

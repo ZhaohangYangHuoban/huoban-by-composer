@@ -11,140 +11,103 @@
 
 namespace Huoban\Models;
 
-use Exception;
-use GuzzleHttp\Psr7\Request;
 use Huoban\Models\HuobanBasic;
 
 class HuobanTicket extends HuobanBasic
 {
     public $expired = 1209600;
-    /**
-     * 获取企业授权的请求
-     *
-     * @param [type] $application_id
-     * @param [type] $application_secret
-     * @param [type] $expired
-     * @return Request
-     */
-    public function getForEnterpriseRequest( $application_id, $application_secret, $expired ): Request
-    {
-        $attr = [ 
-            'application_id'     => $application_id,
-            'application_secret' => $application_secret,
-            'expired'            => $expired,
-        ];
-
-        return new Request( 'POST', '/v2/ticket', [], json_encode( $attr ) );
-    }
 
     /**
      * 获取企业授权的执行操作
      *
-     * @param $application_id
-     * @param $application_secret
-     * @param array $options
-     * @return string
-     * @throws Exception
+     * @param array  $options
+     * @return string|null
      */
-    public function getForEnterprise( $application_id, $application_secret, array $options = [] ): string
+    public function getForEnterprise() : string|null
     {
-        $expired  = $options['expired'] ?? $this->expired;
-        $request  = $this->getForEnterpriseRequest( $application_id, $application_secret, $expired );
-        $response = $this->request->requestJsonSync( $request );
-
-        return $response['ticket'];
-    }
-
-    /**
-     * 获取BI授权的请求
-     *
-     * @param [type] $application_id
-     * @param [type] $application_secret
-     * @param [type] $expired
-     * @return Request
-     */
-    public function getForBIRequest( $application_id, $application_secret, $expired ): Request
-    {
-        $attr = [ 
-            'application_id'     => $application_id,
-            'application_secret' => $application_secret,
-            'expired'            => $expired,
+        $body = [ 
+            'application_id'     => $this->request->getConfig( 'application_id' ),
+            'application_secret' => $this->request->getConfig( 'application_secret' ),
+            'expired'            => $this->expired,
         ];
 
-        return new Request( 'POST', '/v2/space/app/ticket', [], json_encode( $attr ) );
+        $response = $this->request->execute( 'POST', '/v2/ticket', $body );
+
+        return $response['ticket'] ?? null;
     }
 
     /**
      * 获取BI授权的执行操作
      *
-     * @param $application_id
-     * @param $application_secret
-     * @param array $options
-     * @return string
-     * @throws Exception
+     * @param array  $options
+     * @return string|null
      */
-    public function getForBI( $application_id, $application_secret, array $options = [] ): string
+    public function getForBI() : string|null
     {
-        $expired  = $options['expired'] ?? $this->expired;
-        $request  = $this->getForBIRequest( $application_id, $application_secret, $expired );
-        $response = $this->request->requestJsonSync( $request );
-
-        return $response['ticket'];
-    }
-
-    /**
-     * 获取分享授权的请求
-     *
-     * @param [type] $share_id
-     * @param [type] $secret
-     * @param [type] $expired
-     * @return Request
-     */
-    protected function getForShareRequest( $share_id, $secret, $expired ): Request
-    {
-        $attr = [ 
-            'share_id' => $share_id,
-            'secret'   => $secret,
-            'expired'  => $expired,
+        $body = [ 
+            'application_id'     => $this->request->getConfig( 'application_id' ),
+            'application_secret' => $this->request->getConfig( 'application_secret' ),
+            'expired'            => $this->expired,
         ];
 
-        return new Request( 'POST', '/v2/ticket', [], json_encode( $attr ) );
+        $response = $this->request->execute( 'POST', '/v2/space/app/ticket', $body );
+
+        return $response['ticket'] ?? null;
     }
 
     /**
-     * @throws Exception
+     * 获取分享授权的执行操作
+     *
+     * @param string $share_id
+     * @param string $secret
+     * @param array  $options
+     * @return string|null
      */
-    protected function getForShare( $share_id, $secret, $options )
+    protected function getForShare() : string|null
     {
-        $expired  = $options['expired'] ?? $this->expired;
-        $request  = $this->getForShareRequest( $share_id, $secret, $expired );
-        $response = $this->request->requestJsonSync( $request );
 
-        return $response['ticket'];
+        $body = [ 
+            'share_id' => $this->request->getConfig( 'share_id' ),
+            'secret'   => $this->request->getConfig( 'secret' ),
+            'expired'  => $this->expired,
+        ];
+
+        $response = $this->request->execute( 'POST', '/v2/ticket', $body );
+
+        return $response['ticket'] ?? null;
     }
 
     /**
-     * @throws InvalidArgumentException
+     * 获取对应ticket
+     *
+     * @return string|null
      */
-    public function getTicket( $options = [] )
+    public function getTicket() : string|null
     {
-        $type = $this->config['app_type'];
+        $type = $this->request->getConfig( 'app_type' );
 
         switch ($type) {
             case 'enterprise':
-                return $this->getForEnterprise( $this->config['application_id'], $this->config['application_secret'], $options );
+                return $this->getForEnterprise();
             case 'bi':
-                return $this->getForBi( $this->config['application_id'], $this->config['application_secret'], $options );
+                return $this->getForBi();
             case 'share':
-                return $this->getForShare( $this->config['share_id'], $this->config['secret'], $options );
+                return $this->getForShare();
             case 'table':
-                return $this->config['ticket'];
+                return $this->request->getConfig( 'ticket' );
             default:
-                return '';
+                return null;
         }
     }
 
-    public function parse( $body = [], $options = [] )
+    /**
+     * 解析ticket
+     *
+     * @param array $body
+     * @param array $options
+     * @return array
+     */
+    public function parse( array $body = [], array $options = [] ) : array
     {
         return $this->request->execute( 'GET', "/ticket/parse", $body, $options );
     }

@@ -193,7 +193,7 @@ class HuobanBiItem extends HuobanBasic
     {
         $format_items = [];
         foreach ( $items as $item ) {
-            $item_id                = (string) $item['item_id'];
+            $item_id                  = (string) $item['item_id'];
             $format_items[ $item_id ] = $this->returnDiy( $item );
         }
         return $format_items;
@@ -278,7 +278,7 @@ class HuobanBiItem extends HuobanBasic
      *
      * @param array $options
      * @param boolean $pre_judge
-     * @return void
+     * @return array
      */
     public function getHeadersOptionOnlyItemsFields( $options, $pre_judge = true )
     {
